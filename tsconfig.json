@@ -1,0 +1,10 @@
+{
+  "compilerOptions": {
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "module": "commonjs",
+    "target": "ESNext",
+    "sourceMap": true,
+    "declaration": false
+  }
+}

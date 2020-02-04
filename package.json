@@ -1,0 +1,22 @@
+{
+  "name": "mediator_node",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "devDependencies": {
+    "tslint": "^5.20.1",
+    "tslint-eslint-rules": "^5.4.0",
+    "typescript": "^3.7.4"
+  },
+  "scripts": {
+    "run:watch": "nodemon"
+  },
+  "dependencies": {
+    "@types/argparse": "^1.0.38",
+    "@types/node": "^13.5.0",
+    "argparse": "^1.0.10",
+    "global": "^4.4.0",
+    "nodemon": "^2.0.2",
+    "ts-node": "^8.5.4"
+  }
+}

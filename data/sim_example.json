@@ -1,0 +1,104 @@
+{
+  "action_effects": [
+    {
+      "primitive_name": "hc_up",
+      "on_factor": "D_LoA*",
+      "diff": "+.1",
+      "std": 0.2
+    },
+    {
+      "primitive_name": "do_nothing",
+      "on_factor": "*_LoA*",
+      "diff": "-.1",
+      "std": 2
+    },
+    {
+      "primitive_name": "hc_up",
+      "on_factor": "sleepiness",
+      "diff": "*1.1",
+      "std": 0
+    }
+  ],
+  "factors": [
+    {
+      "name": "D_LoA0",
+      "value": "${dipp}",
+      "type": "modeled",
+      "dependence": "endogenous",
+      "error": 0.1
+    },
+    {
+      "name": "D_LoA1",
+      "value": "${dipp}",
+      "type": "modeled",
+      "dependence": "endogenous",
+      "error": 0.1
+    },
+    {
+      "name": "D_LoA2",
+      "value": "${dipp}",
+      "type": "modeled",
+      "dependence": "endogenous",
+      "error": 0.0
+    },
+
+    {
+      "name": "A_LoA0",
+      "value": 0,
+      "type": "static",
+      "dependence": "endogenous",
+      "error": 0.0
+    },
+    {
+      "name": "A_LoA1",
+      "value": "${dipp}",
+      "type": "modeled",
+      "dependence": "endogenous",
+      "error": 0.1
+    },
+    {
+      "name": "A_LoA2",
+      "value": "${dipp}",
+      "type": "modeled",
+      "dependence": "endogenous",
+      "error": 0.1
+    },
+
+    {
+      "name": "sin",
+      "value": "Math.sin(${_t} * .1)",
+      "type": "modeled",
+      "dependence": "exogenous",
+      "error": 0
+    },
+    {
+      "name": "dipp",
+      "value": "${_t} < 50 && ${_t} > 40 ? 0.5 : 1",
+      "type": "modeled",
+      "dependence": "exogenous",
+      "error": 0
+    },
+    {
+      "name": "dipp_with_slope",
+      "value": "Math.max(0, Math.min((${_t} - 50) * .1 , 1))",
+      "type": "modeled",
+      "dependence": "exogenous",
+      "error": 0
+    },
+    {
+      "name": "sleepiness",
+      "value": "${-1} * .99",
+      "start_value": 1,
+      "type": "modeled",
+      "dependence": "exogenous",
+      "error": 0.5
+    },
+    {
+      "name": "distraction",
+      "value": "${dipp}",
+      "type": "modeled",
+      "dependence": "endogenous",
+      "error": 0.5
+    }
+  ]
+}
