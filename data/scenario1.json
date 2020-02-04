@@ -1,0 +1,104 @@
+{
+  "action_effects": [
+    {
+      "primitive_name": "hc_up",
+      "on_factor": "sleepiness*",
+      "diff": "-.2",
+      "std": 0.2
+    }
+  ],
+  "totalT": 117,
+  "description": "Sim 1 after the presentation given by Bram Bakker on Feb 3 2020, we will try to invoke most required actions of the mediator.",
+  "factors": [
+    {
+      "name": "D_LoA0",
+      "value": "${HC} > .8 ? 1 : 0",
+      "type": "modeled",
+      "dependence": "endogenous",
+      "error": 0.1
+    },
+    {
+      "name": "D_LoA1",
+      "value": "${HC} > .4 ? 1 : 0",
+      "type": "modeled",
+      "dependence": "endogenous",
+      "error": 0.1
+    },
+    {
+      "name": "D_LoA2",
+      "value": "${HC} > .2 ? 1 : 0",
+      "type": "modeled",
+      "dependence": "endogenous",
+      "error": 0.0
+    },
+
+    {
+      "name": "A_LoA0",
+      "value": "${AC} > 0 ? 1 : 0",
+      "type": "modeled",
+      "dependence": "endogenous",
+      "error": 0.0
+    },
+    {
+      "name": "A_LoA1",
+      "value": "${AC} > .5 ? 1 : 0",
+      "type": "modeled",
+      "dependence": "endogenous",
+      "error": 0.1
+    },
+    {
+      "name": "A_LoA2",
+      "value": "${AC} > .7 ? 1 : 0",
+      "type": "modeled",
+      "dependence": "endogenous",
+      "error": 0.1
+    },
+
+
+    {
+      "name": "HC",
+      "value": "1 - .5 * ${sleepiness} - .5 * ${distraction}",
+      "type": "modeled",
+      "dependence": "endogenous",
+      "error": 0
+    },
+    {
+      "name": "AC",
+      "value": "${road_condition} + ${traffic_predictability}",
+      "type": "modeled",
+      "dependence": "endogenous",
+      "error": 0
+    },
+
+    {
+      "name": "sleepiness",
+      "value": "${-1} * 1.05",
+      "start_value": 0.01,
+      "type": "modeled",
+      "dependence": "exogenous",
+      "error": 0.5
+    },
+    {
+      "name": "distraction",
+      "value": "(9 < ${_t} && ${_t} < 12) || (24 < ${_t} && ${_t} < 27) || (42 < ${_t} && ${_t} < 45) || (66 < ${_t} && ${_t} < 75) ? 1 : 0",
+      "type": "modeled",
+      "dependence": "exogenous",
+      "error": 0.5
+    },
+
+    {
+      "name": "road_condition",
+      "value": "(6 < ${_t} && ${_t} < 15) || (21 < ${_t} && ${_t} < 33) || (39 < ${_t} && ${_t} < 48) || (54 < ${_t} && ${_t} < 84)  || (93 < ${_t} && ${_t} < 99) || (105 < ${_t} && ${_t} < 114) ? .6 : 0",
+      "type": "modeled",
+      "dependence": "exogenous",
+      "error": 0.5
+    },
+    {
+      "name": "traffic_predictability",
+      "value": "(6 < ${_t} && ${_t} < 15) || (21 < ${_t} && ${_t} < 33) || (54 < ${_t} && ${_t} < 84)  || (105 < ${_t} && ${_t} < 114) ? .4 : 0",
+      "type": "modeled",
+      "dependence": "exogenous",
+      "error": 0.5
+    }
+  ]
+}

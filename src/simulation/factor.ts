@@ -86,7 +86,7 @@ class Factor {
         let tmpFormula = this.formula.replace(/\${_t}/g, this.getT().toString())
 
         // replace ${-x}
-        const backRefs = tmpFormula.match('\\${-[0-9]*}')
+        const backRefs = tmpFormula.match(/\${-[0-9]*}/g)
 
         if (backRefs) {
             backRefs.forEach(ref => {
@@ -101,7 +101,7 @@ class Factor {
         }
 
         // replace internal refs
-        const factorRefs = tmpFormula.match('\\${.*?}')
+        const factorRefs = tmpFormula.match(/\${.*?}/g)
         if (factorRefs) {
             factorRefs.forEach(ref => {
                 const factorName = ref.replace('${', '').replace('}', '')
@@ -111,6 +111,10 @@ class Factor {
         }
 
         return tmpFormula
+    }
+
+    getLastTrue(): number {
+        return this.trueValues[this.getT() - 1]
     }
 
     getT(): number {

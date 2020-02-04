@@ -27,7 +27,7 @@ class Context {
 
     performAction(action?: Action) {
         Object.values(this.factors).forEach(factor => {
-            console.log(factor.name, ':', factor.next())
+           factor.next()
         })
     }
 }

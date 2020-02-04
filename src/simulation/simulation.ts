@@ -8,11 +8,14 @@ import { FactorInput } from './factor'
 interface Scenario {
     action_effects: object[] // TODO implement interface
     factors: FactorInput[]
+    totalT?: number,
+    description: string,
 }
 
 class Simulation {
 
     t: number = 0
+    totalT?: number
     context: Context
 
     constructor(
@@ -20,6 +23,7 @@ class Simulation {
     ) {
         const scenarioFile = readFileSync(scenarioFilePath, { encoding: 'utf8' })
         const scenario: Scenario = JSON.parse(scenarioFile)
+        this.totalT = scenario.totalT
         // Load Scenario
         // Check for valid factors
         this.context = new Context(scenario.factors)
@@ -28,6 +32,7 @@ class Simulation {
     }
 
     performAction(action: Action): void {
+        this.t += 1
         this.context.performAction(action)
     }
 
