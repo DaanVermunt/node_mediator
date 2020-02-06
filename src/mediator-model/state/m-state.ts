@@ -53,44 +53,42 @@ class MState implements State {
     // TODO make reward function dependent on AC as well
     // TODO does this depend on the current sim state?
     reward(): number {
+        const r = {
+            high: 100,
+            zero: 0,
+            bad: -100,
+        }
+
         if (this.time === -1) {
             return 0
         }
 
-        if (this.loa === LoA.LoA2) {
-            switch (this.humanConfidence) {
-                case HumanConfidence.HC0:
-                    return 20
-                case HumanConfidence.HC1:
-                    return 2
-                case HumanConfidence.HC2:
-                    return 100
-                default:
-                    return 0
+        const ac = this.autonomousConfidence
+        const hc = this.humanConfidence
+        const loa = this.loa
+
+        if (loa === LoA.LoA0) {
+            if (hc === HumanConfidence.HC2) {
+                return r.high
             }
-        } else if (this.loa === LoA.LoA1) {
-            switch (this.humanConfidence) {
-                case HumanConfidence.HC0:
-                    return 10
-                case HumanConfidence.HC1:
-                    return 15
-                case HumanConfidence.HC2:
-                    return 20
-                default:
-                    return 0
-            }
-        } else {
-            switch (this.humanConfidence) {
-                case HumanConfidence.HC0:
-                    return -5
-                case HumanConfidence.HC1:
-                    return 10
-                case HumanConfidence.HC2:
-                    return 15
-                default:
-                    return 0
-            }
+            return r.bad
         }
+
+        if (loa === LoA.LoA1) {
+            if (ac === AutonomousConfidence.AC0 || hc === HumanConfidence.HC0) {
+                return r.bad
+            } else if (ac === AutonomousConfidence.AC1) {
+                return r.high
+            }
+            return r.zero
+        }
+
+        // IF loa === LoA.LoA2
+        if (ac === AutonomousConfidence.AC0 || ac === AutonomousConfidence.AC1) {
+            return r.bad
+        }
+        return r.high
+
     }
 
     toString(): string {

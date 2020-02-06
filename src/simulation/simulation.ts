@@ -84,7 +84,7 @@ class Simulation {
 
     performAction(action: Action): void {
         this.t += 1
-        this.curLoA = this.context.performAction(action)
+        this.curLoA = this.context.performAction(action, this.curLoA)
     }
 
     getTT(factorName: string, futureScope: number, t: number = this.t): number {

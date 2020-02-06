@@ -39,14 +39,14 @@ function mainLoop() {
 
         ticToc.tic('start_computeAction')
         // Get Opt Action
-        // const process = new Process(mStates, Object.values(prims), curMState, { gamma: .99, lr: .4, n: 200 })
-        // const action = process.getAction()
+        const process = new Process(mStates, Object.values(prims), curMState, { gamma: .99, lr: .4, n: 200 })
+        const action = process.getAction()
         // console.log(mPolicyToString(mStates, process.policy, process.qFunction))
 
         ticToc.tic('done_computeAction')
 
         // Do Action in Sim
-        sim.performAction({} as Action)
+        sim.performAction(action)
         simState = sim.getSimState()
         // writeFactors(sim.context, sim.t)
         writeTTs({ TTA: simState.TTA, TTD: simState.TTD })
