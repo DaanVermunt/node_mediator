@@ -1,5 +1,6 @@
 import Factor, { FactorHash, FactorInput } from './factor'
 import { Action } from '../MDP/action/action'
+import { LoA } from '../mediator-model/state/m-state'
 
 class Context {
     factors: Record<FactorHash, Factor>
@@ -29,10 +30,13 @@ class Context {
         throw Error('Factor does not exist')
     }
 
-    performAction(action?: Action) {
+    // TODO do something with action
+    performAction(action?: Action): LoA {
         Object.values(this.factors).forEach(factor => {
            factor.next()
         })
+        // Return current LoA, i.e. prev and new after action performed
+        return LoA.LoA0
     }
 }
 

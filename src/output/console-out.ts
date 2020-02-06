@@ -1,9 +1,9 @@
-import { Policy } from '../MDP/process/policy'
+import { PolicyVector } from '../MDP/process/policy'
 import { State } from '../MDP/state/state'
 import Context from '../simulation/context'
 import { LoA } from '../mediator-model/state/m-state'
 
-export function writePolicy(states: State[], policy: Policy) {
+export function writePolicy(states: State[], policy: PolicyVector) {
     // console.log(policyToString(states, policy))
 }
 

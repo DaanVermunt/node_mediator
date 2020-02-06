@@ -5,17 +5,15 @@ import { OptionName } from '../../mediator-model/action/m-options'
 
 class Option implements Action {
     constructor(
-        private initSubset: State[],
+        private inInitSubset: (state: State, name: OptionName) => boolean,
         private policy: Policy,
         private attempts: number,
         private finalizeTransition: (from: State, to: State) => boolean,
-
         public name: OptionName,
     ) { }
 
     perform(from: State): ActionRes {
-        // TODO check if === workd for state objects
-        if (!this.initSubset.find(st => from.h() === st.h())) {
+        if (this.inInitSubset(from, this.name)) {
             return {
                 to: from,
                 reward: Number.NEGATIVE_INFINITY,
@@ -32,7 +30,7 @@ class Option implements Action {
         while (!this.finalizeTransition(curState, nextState) && this.attempts >= doneAttemps) {
             curState = nextState
 
-            const action: Action | undefined = this.policy[curState.h()]
+            const action: Action | undefined = this.policy(curState)
             if (!action) {
                 return {
                     to: from,

@@ -3,7 +3,7 @@ import { Action, ActionHash } from '../action/action'
 import { Problem } from './problem'
 import { Solver } from '../solver/solver'
 import ValueIteration from '../solver/value-iteration'
-import { Policy, policyFromQFunc } from './policy'
+import { Policy, policyFromQFunc, PolicyVector } from './policy'
 import QFunction from '../solver/q-function'
 
 class Process {
@@ -26,7 +26,8 @@ class Process {
     private readonly problem: Problem
     private solver: Solver
     public qFunction: QFunction
-    public policy: Policy
+    // TODO Maybe change this to policy function
+    public policy: PolicyVector
 
     getAction(): Action {
         this.qFunction = this.solver.solve(this.problem)

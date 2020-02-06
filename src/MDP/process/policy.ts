@@ -6,10 +6,11 @@ import Option from '../../MDP/action/option'
 import MState, { HumanConfidence, LoA } from '../../mediator-model/state/m-state'
 import { OptionName } from '../../mediator-model/action/m-options'
 
-export type Policy = Record<StateHash, Action>
+export type Policy = (state: State) => Action
+export type PolicyVector = Record<StateHash, Action>
 
-export const policyFromQFunc = (qFunc: QFunction): Policy => {
-    const policy = {} as Policy
+export const policyFromQFunc = (qFunc: QFunction): PolicyVector => {
+    const policy = {} as PolicyVector
 
     Object.keys(qFunc.qValues).forEach(stateHash => {
         policy[stateHash] = qFunc.getMaxAction(stateHash)
@@ -31,7 +32,7 @@ const actionToArrow = (action: OptionName): string => {
     }
 }
 
-export const mPolicyToString = (states: MState[], policy: Policy, qFunction: QFunction): string => {
+export const mPolicyToString = (states: MState[], policy: PolicyVector, qFunction: QFunction): string => {
     states = states.reduce((unique, state) => {
         const duplicate = unique.find(st => st.loa === state.loa && st.time === state.time && st.humanConfidence === state.humanConfidence)
 

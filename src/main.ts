@@ -1,7 +1,7 @@
 import { argparser } from './argparser'
 import Simulation from './simulation/simulation'
 import Process from './MDP/process/process'
-import MState, { AutonomousConfidence, HumanConfidence, LoA } from './mediator-model/state/m-state'
+import MState, { AutonomousConfidence, fromSimState, HumanConfidence, LoA } from './mediator-model/state/m-state'
 import { createMStates } from './helper/model/init-states'
 import { getMOptions } from './mediator-model/action/m-options'
 import TicToc from './helper/TicToc'
@@ -18,17 +18,16 @@ function mainLoop() {
     ticToc.tic('init_start')
     // Init world
     const sim = new Simulation(arg.inputFile)
-    let simState = sim.getSimState()
     const TTHistory: TimeTos[] = []
 
     const nrSteps = sim.totalT || 2
     const mStates = createMStates(nrSteps)
     ticToc.tic('init_done')
 
+    let simState = sim.getSimState()
     // TODO: for t in Time
     for (let i = 0; i < nrSteps; i++) {
         // Get SimState
-        simState = sim.getSimState()
 
         ticToc.tic('start_getOptions')
         // Compute Transprobs
@@ -36,8 +35,7 @@ function mainLoop() {
         ticToc.tic('done_getOptions')
 
         // Compute MDPState
-        // TODO compute from simulation
-        // const curMState = new MState(HumanConfidence.HC0, LoA.LoA1, AutonomousConfidence.AC0, 0)
+        const curMState = fromSimState(simState)
 
         ticToc.tic('start_computeAction')
         // Get Opt Action

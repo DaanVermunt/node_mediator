@@ -1,47 +1,81 @@
 import Option from '../../MDP/action/option'
-import MState, { HumanConfidence, LoA, zeroState } from '../state/m-state'
-import { getMPrimitives } from './m-primitives'
+import MState, { HumanConfidence, LoA, toMState, zeroState } from '../state/m-state'
+import { getMPrimitives, PrimitiveName } from './m-primitives'
 import { SimulationState } from '../../simulation/simulation-state'
+import { State } from '../../MDP/state/state'
+import { Action } from '../../MDP/action/action'
 
 export type OptionName = 'passive' | 'upgrade' | 'downgrade' | 'wake_up'
+
+const getIsInInitSubset = () => (st: State, option: OptionName): boolean => {
+    const state = toMState(st)
+    if (!state) {
+        return false
+    }
+    switch (option) {
+        case 'passive':
+            return true
+        case 'wake_up':
+            return state.humanConfidence !== HumanConfidence.HC2
+        case 'upgrade':
+            return state.loa !== LoA.LoA2
+        case 'downgrade':
+            return state.loa !== LoA.LoA0
+    }
+}
+
+const getPolicyFunction = (option: OptionName, primitives: Record<PrimitiveName, Action>) => (st: State): Action => {
+    const state = toMState(st)
+    if (!state) {
+        return primitives.do_nothing
+    }
+
+    switch (option) {
+        case 'passive':
+            return primitives.do_nothing
+        case 'wake_up':
+            return primitives.hc_up
+        case 'upgrade':
+            return primitives.loa_up
+        case 'downgrade':
+            return primitives.loa_up
+    }
+}
+
 
 // TODO handle simstate
 export const getMOptions = (mStates: MState[], simState: SimulationState, nrSteps: number): Option[] => {
     const primitives = getMPrimitives(mStates, simState, nrSteps)
 
     const passiveOption = new Option(
-        mStates,
-        mStates.reduce((res, state) => ({ [state.h()]: primitives.do_nothing, ...res }), {}),
+        getIsInInitSubset(),
+        getPolicyFunction('passive', primitives),
         1,
-        (from: MState, to: MState) =>  from.time !== to.time,
+        (from: MState, to: MState) => from.time !== to.time,
         'passive',
     )
 
     const upgradeOption = new Option(
-        mStates.filter(state => state.loa !== LoA.LoA2),
-        mStates.filter(state => state.loa !== LoA.LoA2).reduce((res, state) => ({ [state.h()]: primitives.loa_up, ...res }), {}),
-        3,
+        getIsInInitSubset(),
+        getPolicyFunction('upgrade', primitives),
+        1,
         (from: MState, to: MState) => from.loa + 1 === to.loa,
         'upgrade',
     )
 
     const downgradeOption = new Option(
-        mStates.filter(state => state.loa !== LoA.LoA0 || state.h() === zeroState.h()),
-        mStates
-            .filter(state => state.loa !== LoA.LoA0 || state.h() === zeroState.h())
-            .reduce((res, state) => ({ [state.h()]: primitives.loa_down, ...res }), {}),
-        3,
+        getIsInInitSubset(),
+        getPolicyFunction('downgrade', primitives),
+        1,
         (from: MState, to: MState) => from.loa - 1 === to.loa,
         'downgrade',
     )
 
+    // TODO for wake up, we should capture the underlying consequence of the action see hc_up_primitive
     const wakeUpOption = new Option(
-        mStates
-            .filter(state => state.humanConfidence !== HumanConfidence.HC2),
-        mStates
-            .filter(state => state.humanConfidence !== HumanConfidence.HC2)
-            .reduce((res, state) => ({ [state.h()]: primitives.hc_up, ...res }), {}),
-        3,
+        getIsInInitSubset(),
+        getPolicyFunction('wake_up', primitives),
+        1,
         (from: MState, to: MState) => from.humanConfidence + 1 === to.humanConfidence,
         'wake_up',
     )

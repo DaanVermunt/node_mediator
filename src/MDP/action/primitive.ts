@@ -1,20 +1,21 @@
 import { State, StateHash } from '../state/state'
-import { Action, ActionRes, nullRes } from './action'
+import { Action, ActionHash, ActionRes, nullRes } from './action'
 import { PrimitiveName } from '../../mediator-model/action/m-primitives'
-import MState, { AutonomousConfidence, HumanConfidence, LoA, zeroState } from '../../mediator-model/state/m-state'
 
 class Primitive implements Action {
     constructor(
         public name: PrimitiveName,
-        private transitionMatrix: Record<StateHash, Record<StateHash, number>>,
+        // private transitionMatrix: Record<StateHash, Record<StateHash, number>>,
+        private getTransistions: (action: PrimitiveName, from: State) => Record<StateHash, number>,
         private states: Record<StateHash, State>,
     ) {
     }
 
     public perform(from: State): ActionRes {
-        const transitions: Record<StateHash, number> = this.transitionMatrix[from.h()]
+        // const transitions: Record<StateHash, number> = this.transitionMatrix[from.h()]
+        const transitions: Record<StateHash, number> = this.getTransistions(this.name, from)
 
-        if (!transitions ||
+        if (
             Object.keys(transitions).length === 0 ||
             Object.values(transitions).reduce((sum, val) => sum + val) <= 0
         ) {

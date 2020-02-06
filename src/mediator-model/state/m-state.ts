@@ -1,5 +1,6 @@
 import { State } from '../../MDP/state/state'
 import { SimulationState } from '../../simulation/simulation-state'
+import { getACfromSimState, getHCfromSimState } from '../../simulation/simulation'
 
 export enum HumanConfidence {
     HC0,
@@ -25,6 +26,18 @@ export enum AutonomousConfidence {
     AC2,
 }
 
+export const toMState = (state: State): (MState | null) => {
+    const res = state as MState
+    if (
+        res.autonomousConfidence !== undefined &&
+        res.humanConfidence !== undefined &&
+        res.loa !== undefined
+    ) {
+        return res
+    }
+    return null
+}
+
 class MState implements State {
     constructor(
         public readonly humanConfidence: HumanConfidence,
@@ -38,6 +51,7 @@ class MState implements State {
     }
 
     // TODO make reward function dependent on AC as well
+    // TODO does this depend on the current sim state?
     reward(): number {
         if (this.time === -1) {
             return 0
@@ -77,7 +91,6 @@ class MState implements State {
                     return 0
             }
         }
-
     }
 
     toString(): string {
@@ -87,8 +100,7 @@ class MState implements State {
 }
 
 export const fromSimState = (simState: SimulationState): MState => {
-    // TODO implement
-    return new MState(0, 0, 0, 0)
+    return new MState(getHCfromSimState(simState), simState.LoA, getACfromSimState(simState), 0)
 }
 
 export const zeroState: MState = new MState(0, 0, 0, -1)
