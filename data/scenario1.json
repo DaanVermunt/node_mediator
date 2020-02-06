@@ -72,7 +72,7 @@
 
     {
       "name": "sleepiness",
-      "value": "${-1} * 1.05",
+      "value": "${-1} * 1.01",
       "start_value": 0.01,
       "type": "modeled",
       "dependence": "exogenous",

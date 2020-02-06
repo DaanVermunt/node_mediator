@@ -72,6 +72,9 @@ typings/
 .idea/*
 .idea
 
+# output
+data/out/**
+
 # dotenv environment variables file
 .env
 .env.test

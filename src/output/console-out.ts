@@ -13,7 +13,7 @@ export function writeFactors(context: Context, t: number) {
     })
 }
 
-interface TimeTos {
+export interface TimeTos {
     TTD: Record<LoA, number>
     TTA: Record<LoA, number>
 }

@@ -5,8 +5,9 @@ import MState, { AutonomousConfidence, HumanConfidence, LoA } from './mediator-m
 import { createMStates } from './helper/model/init-states'
 import { getMOptions } from './mediator-model/action/m-options'
 import TicToc from './helper/TicToc'
-import { Action } from './MDP/action/action'
-import { writeFactors, writeTTs } from './output/console-out'
+import { Action, nullRes } from './MDP/action/action'
+import { TimeTos, writeTTs } from './output/console-out'
+import { writeContextHistory, writeTTHistory } from './output/write-file'
 
 const arg = argparser.parseArgs()
 const d = new Date()
@@ -17,19 +18,21 @@ function mainLoop() {
     ticToc.tic('init_start')
     // Init world
     const sim = new Simulation(arg.inputFile)
+    let simState = sim.getSimState()
+    const TTHistory: TimeTos[] = []
 
     const nrSteps = sim.totalT || 2
-    // const mStates = createMStates(nrSteps)
+    const mStates = createMStates(nrSteps)
     ticToc.tic('init_done')
 
     // TODO: for t in Time
     for (let i = 0; i < nrSteps; i++) {
         // Get SimState
-        // const simState = sim.getSimState()
+        simState = sim.getSimState()
 
         ticToc.tic('start_getOptions')
         // Compute Transprobs
-        // const prims = getMOptions(mStates, simState, nrSteps)
+        const prims = getMOptions(mStates, simState, nrSteps)
         ticToc.tic('done_getOptions')
 
         // Compute MDPState
@@ -46,10 +49,15 @@ function mainLoop() {
 
         // Do Action in Sim
         sim.performAction({} as Action)
-        const simState = sim.getSimState()
+        simState = sim.getSimState()
         // writeFactors(sim.context, sim.t)
         writeTTs({ TTA: simState.TTA, TTD: simState.TTD })
+        TTHistory.push({ TTA: simState.TTA, TTD: simState.TTD })
     }
+
+    writeTTHistory(TTHistory)
+    writeContextHistory(sim.getSimState(), nrSteps)
+    console.log(new Date())
 }
 
 mainLoop()
