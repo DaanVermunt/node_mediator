@@ -69,7 +69,9 @@ typings/
 .yarn-integrity
 
 # IDEA
-**/.idea/**
+.idea/*
+.idea
+
 # dotenv environment variables file
 .env
 .env.test
