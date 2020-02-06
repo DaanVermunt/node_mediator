@@ -29,7 +29,7 @@ class Process {
     // TODO Maybe change this to policy function
     public policy: PolicyVector
 
-    getAction(): Action {
+    getAction(): (Action | undefined) {
         this.qFunction = this.solver.solve(this.problem)
         this.policy = policyFromQFunc(this.qFunction)
         return this.policy[this.curState.h()]

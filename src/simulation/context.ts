@@ -36,6 +36,7 @@ class Context {
         Object.values(this.factors).forEach(factor => {
            factor.next()
         })
+
         // Return current LoA, i.e. prev and new after action performed
         if (action) {
             const loaUp = {

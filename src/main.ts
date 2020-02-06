@@ -1,5 +1,5 @@
 import { argparser } from './argparser'
-import Simulation from './simulation/simulation'
+import Simulation, { getACfromSimState, getHCfromSimState } from './simulation/simulation'
 import Process from './MDP/process/process'
 import MState, { AutonomousConfidence, fromSimState, HumanConfidence, LoA } from './mediator-model/state/m-state'
 import { createMStates } from './helper/model/init-states'
@@ -7,11 +7,18 @@ import { getMOptions } from './mediator-model/action/m-options'
 import TicToc from './helper/TicToc'
 import { Action, nullRes } from './MDP/action/action'
 import { TimeTos, writeTTs } from './output/console-out'
-import { writeContextHistory, writeTTHistory } from './output/write-file'
+import { writeContextHistory, writeStateActionHistory, writeTTHistory } from './output/write-file'
 
 const arg = argparser.parseArgs()
 const d = new Date()
 console.log(`${d.getHours()}:${d.getMinutes()}:${d.getSeconds()}`)
+
+export interface StateActionHistoryItem {
+    action: string
+    loa: LoA
+    ac: AutonomousConfidence
+    hc: HumanConfidence
+}
 
 function mainLoop() {
     const ticToc = new TicToc()
@@ -19,6 +26,7 @@ function mainLoop() {
     // Init world
     const sim = new Simulation(arg.inputFile)
     const TTHistory: TimeTos[] = []
+    const stateActionHistory: StateActionHistoryItem[] = []
 
     const nrSteps = sim.totalT || 2
     const mStates = createMStates(nrSteps)
@@ -49,11 +57,18 @@ function mainLoop() {
         sim.performAction(action)
         simState = sim.getSimState()
         // writeFactors(sim.context, sim.t)
-        writeTTs({ TTA: simState.TTA, TTD: simState.TTD })
+        // writeTTs({ TTA: simState.TTA, TTD: simState.TTD })
         TTHistory.push({ TTA: simState.TTA, TTD: simState.TTD })
+        stateActionHistory.push({
+            action: action ? action.name : 'undefined',
+            loa: simState.LoA,
+            ac: getACfromSimState(simState),
+            hc: getHCfromSimState(simState),
+        })
     }
 
     writeTTHistory(TTHistory)
+    writeStateActionHistory(stateActionHistory)
     writeContextHistory(sim.getSimState(), nrSteps)
     console.log(new Date())
 }

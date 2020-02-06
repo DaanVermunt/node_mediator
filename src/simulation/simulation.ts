@@ -82,7 +82,7 @@ class Simulation {
         // Create first SimState
     }
 
-    performAction(action: Action): void {
+    performAction(action?: Action): void {
         this.t += 1
         this.curLoA = this.context.performAction(action, this.curLoA)
     }

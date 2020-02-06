@@ -2,6 +2,7 @@ import * as fs from 'fs'
 import { SimulationState } from '../simulation/simulation-state'
 import { LoA } from '../mediator-model/state/m-state'
 import { TimeTos } from './console-out'
+import { StateActionHistoryItem } from '../main'
 
 export function writeContextHistory(simState: SimulationState, to: number) {
     const context = simState.context
@@ -23,6 +24,30 @@ export function writeContextHistory(simState: SimulationState, to: number) {
     }
 
     fs.writeFileSync('./data/out/context.csv', resString, { encoding: 'utf-8' })
+}
+
+export function writeStateActionHistory(stateActionHistory: StateActionHistoryItem[]) {
+    if (stateActionHistory.length === 0) {
+        return
+    }
+    let resString = 't'
+    // HEADER
+    Object.keys(stateActionHistory[0]).forEach((key: string) => {
+            resString += `,${key}`
+        })
+    resString += `\n`
+
+    // ROWS
+    stateActionHistory.forEach((histItem, idx) => {
+        resString += `${idx}, `
+        // @ts-ignore
+        Object.values(histItem).forEach((item) => {
+            resString += `,${item}`
+        })
+        resString += `\n`
+    })
+
+    fs.writeFileSync('./data/out/StateActionHistory.csv', resString, { encoding: 'utf-8' })
 }
 
 export function writeTTHistory(TThistory: TimeTos[]) {
