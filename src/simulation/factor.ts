@@ -12,8 +12,15 @@ export interface FactorInput {
     error?: number
 }
 
+export interface Prediction {
+    at: number,
+    factorName: string,
+    value: number,
+    error: number,
+}
+
 interface FactorInit extends FactorInput {
-   getOtherFactor: (factorName: string, t: number) => number
+    getOtherFactor: (factorName: string, t: number) => number
 }
 
 class Factor {
@@ -91,10 +98,10 @@ class Factor {
         if (backRefs) {
             backRefs.forEach(ref => {
                 const backIndex = Number(ref.replace('${', '').replace('}', ''))
-                const backValue  =
+                const backValue =
                     !isNaN(backIndex) && Math.abs(backIndex) < this.getT()
-                    ? this.trueValues[this.getT() + backIndex]
-                    : this.startValue
+                        ? this.trueValues[this.getT() + backIndex]
+                        : this.startValue
 
                 tmpFormula = tmpFormula.replace(ref, backValue.toString())
             })
@@ -115,6 +122,21 @@ class Factor {
 
     getLastTrue(): number {
         return this.trueValues[this.getT() - 1]
+    }
+
+    getPrediction(from: number, n: number): Prediction[] {
+        // TODO Find a way to predict instead of using 'real' values
+        const pred: Prediction[] = []
+
+        for (let i = from; i < from + n; i++) {
+            pred.push({
+                at: i,
+                factorName: this.name,
+                value: this.getAtT(i),
+                error: this.error,
+            })
+        }
+        return pred
     }
 
     getT(): number {

@@ -6,7 +6,7 @@ import { createMStates } from './helper/model/init-states'
 import { getMOptions } from './mediator-model/action/m-options'
 import TicToc from './helper/TicToc'
 import { Action } from './MDP/action/action'
-import { writeContext } from './output/console-out'
+import { writeFactors, writeTTs } from './output/console-out'
 
 const arg = argparser.parseArgs()
 const d = new Date()
@@ -46,7 +46,9 @@ function mainLoop() {
 
         // Do Action in Sim
         sim.performAction({} as Action)
-        writeContext(sim.context, sim.t)
+        const simState = sim.getSimState()
+        // writeFactors(sim.context, sim.t)
+        writeTTs({ TTA: simState.TTA, TTD: simState.TTD })
     }
 }
 
