@@ -42,6 +42,20 @@ class QFunction {
                 action : maxAction
         })
     }
+
+    equals(other: QFunction): boolean {
+        this.p.states.forEach(state => {
+            this.p.actions.forEach(action => {
+
+                if (this.qValues[state.h()][action.h()] !== other.qValues[state.h()][action.h()]) {
+                    return false
+                }
+
+            })
+        })
+
+        return true
+    }
 }
 
 export default QFunction

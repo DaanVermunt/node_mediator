@@ -44,13 +44,13 @@ class MState implements State {
         public readonly loa: LoA,
         public readonly autonomousConfidence: AutonomousConfidence,
         public readonly time: number,
-    ) {}
+    ) {
+    }
 
     h(): string {
         return this.toString()
     }
 
-    // TODO make reward function dependent on AC as well
     // TODO does this depend on the current sim state?
     reward(): number {
         const r = {

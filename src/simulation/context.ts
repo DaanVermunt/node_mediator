@@ -31,7 +31,7 @@ class Context {
         throw Error('Factor does not exist')
     }
 
-    // TODO do something with action
+    // TODO do something with more action
     performAction(action?: Action, curLoA: LoA = LoA.LoA0): LoA {
         Object.values(this.factors).forEach(factor => {
            factor.next()

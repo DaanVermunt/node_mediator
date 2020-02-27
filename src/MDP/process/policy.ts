@@ -32,7 +32,7 @@ const actionToArrow = (action: OptionName): string => {
     }
 }
 
-export const mPolicyToString = (states: MState[], policy: PolicyVector, qFunction: QFunction): string => {
+export const mPolicyToString = (states: MState[], policy: PolicyVector, qFunction: QFunction, maxHorizon: number = Number.POSITIVE_INFINITY): string => {
     states = states.reduce((unique, state) => {
         const duplicate = unique.find(st => st.loa === state.loa && st.time === state.time && st.humanConfidence === state.humanConfidence)
 
@@ -49,7 +49,9 @@ export const mPolicyToString = (states: MState[], policy: PolicyVector, qFunctio
 
     let res = ''
 
-    states.forEach(state => {
+    states
+        .filter(state => state.time < maxHorizon)
+        .forEach(state => {
 
         if (state.time !== t) {
             res += `\n\t T = ${state.time}`
@@ -70,8 +72,8 @@ export const mPolicyToString = (states: MState[], policy: PolicyVector, qFunctio
         const action = policy[state.h()]
         if (action instanceof Option) {
             // res += `[${actionToArrow(action.name)}]`
-            // res += `[${qFunction.get(state.h(), action.h()).toFixed(2)}]`
-            res += `[${state.loa + ',' + state.humanConfidence}, ${actionToArrow(action.name)}, ${qFunction.get(state.h(), action.h()).toFixed(0)}]`
+            res += `[${actionToArrow(action.name)}, ${qFunction.get(state.h(), action.h()).toFixed(2)}]`
+            // res += `[${state.loa + ',' + state.humanConfidence}, ${actionToArrow(action.name)}, ${qFunction.get(state.h(), action.h()).toFixed(0)}]`
         }
 
         if (state.loa === LoA.LoA0 && state.humanConfidence === HumanConfidence.HC2) {

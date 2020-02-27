@@ -14,60 +14,51 @@
       "name": "D_LoA0",
       "value": "${HC} > .8 ? 1 : 0",
       "type": "modeled",
-      "dependence": "endogenous",
-      "error": 0.1
+      "dependence": "endogenous"
     },
     {
       "name": "D_LoA1",
       "value": "${HC} > .4 ? 1 : 0",
       "type": "modeled",
-      "dependence": "endogenous",
-      "error": 0.1
+      "dependence": "endogenous"
     },
     {
       "name": "D_LoA2",
       "value": "${HC} > .2 ? 1 : 0",
       "type": "modeled",
-      "dependence": "endogenous",
-      "error": 0.0
+      "dependence": "endogenous"
     },
 
     {
       "name": "A_LoA0",
       "value": "${AC} > 0 ? 1 : 0",
       "type": "modeled",
-      "dependence": "endogenous",
-      "error": 0.0
+      "dependence": "endogenous"
     },
     {
       "name": "A_LoA1",
       "value": "${AC} > .5 ? 1 : 0",
       "type": "modeled",
-      "dependence": "endogenous",
-      "error": 0.1
+      "dependence": "endogenous"
     },
     {
       "name": "A_LoA2",
       "value": "${AC} > .7 ? 1 : 0",
       "type": "modeled",
-      "dependence": "endogenous",
-      "error": 0.1
+      "dependence": "endogenous"
     },
-
 
     {
       "name": "HC",
       "value": "1 - .5 * ${sleepiness} - .5 * ${distraction}",
       "type": "modeled",
-      "dependence": "endogenous",
-      "error": 0
+      "dependence": "endogenous"
     },
     {
       "name": "AC",
       "value": "${road_condition} + ${traffic_predictability}",
       "type": "modeled",
-      "dependence": "endogenous",
-      "error": 0
+      "dependence": "endogenous"
     },
 
     {

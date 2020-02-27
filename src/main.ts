@@ -1,13 +1,13 @@
 import { argparser } from './argparser'
 import Simulation, { getACfromSimState, getHCfromSimState } from './simulation/simulation'
 import Process from './MDP/process/process'
-import MState, { AutonomousConfidence, fromSimState, HumanConfidence, LoA } from './mediator-model/state/m-state'
+import { AutonomousConfidence, fromSimState, HumanConfidence, LoA } from './mediator-model/state/m-state'
 import { createMStates } from './helper/model/init-states'
 import { getMOptions } from './mediator-model/action/m-options'
 import TicToc from './helper/TicToc'
-import { Action, nullRes } from './MDP/action/action'
-import { TimeTos, writeTTs } from './output/console-out'
+import { TimeTos } from './output/console-out'
 import { writeContextHistory, writeStateActionHistory, writeTTHistory } from './output/write-file'
+import QFunction from './MDP/solver/q-function'
 
 const arg = argparser.parseArgs()
 const d = new Date()
@@ -28,34 +28,39 @@ function mainLoop() {
     const TTHistory: TimeTos[] = []
     const stateActionHistory: StateActionHistoryItem[] = []
 
-    const nrSteps = sim.totalT || 2
-    const mStates = createMStates(nrSteps)
+    // TODO remove small number of steps
+    const nrSteps = 20 || sim.totalT || 2
+    // const horizon = sim.horizon || 20
+    const horizon = 20 // TODO get from scenario
+    const mStates = createMStates(horizon)
     ticToc.tic('init_done')
+    let prevQ: QFunction | boolean = false
 
-    let simState = sim.getSimState()
-    // TODO: for t in Time
+    let simState = sim.getSimState(horizon)
     for (let i = 0; i < nrSteps; i++) {
         // Get SimState
+        // ticToc.tic(`${i} / ${nrSteps}`)
 
-        ticToc.tic('start_getOptions')
         // Compute Transprobs
-        const prims = getMOptions(mStates, simState, nrSteps)
-        ticToc.tic('done_getOptions')
+        const prims = getMOptions(mStates, simState, horizon)
+        // ticToc.tic('done_getOptions')
 
         // Compute MDPState
         const curMState = fromSimState(simState)
+        console.log(curMState.h())
 
-        ticToc.tic('start_computeAction')
         // Get Opt Action
-        const process = new Process(mStates, Object.values(prims), curMState, { gamma: .99, lr: .4, n: 200 })
+        const process = new Process(mStates, Object.values(prims), curMState, { gamma: .99, lr: .4, n: 50 })
         const action = process.getAction()
-        // console.log(mPolicyToString(mStates, process.policy, process.qFunction))
-
-        ticToc.tic('done_computeAction')
+        // console.log(mPolicyToString(mStates, process.policy, process.qFunction, 5))
+        console.log(prevQ && prevQ.equals(process.qFunction))
+        prevQ = process.qFunction
+        // ticToc.tic('done_computeAction')
 
         // Do Action in Sim
         sim.performAction(action)
         simState = sim.getSimState()
+
         // writeFactors(sim.context, sim.t)
         // writeTTs({ TTA: simState.TTA, TTD: simState.TTD })
         TTHistory.push({ TTA: simState.TTA, TTD: simState.TTD })

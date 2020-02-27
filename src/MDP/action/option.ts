@@ -10,10 +10,11 @@ class Option implements Action {
         private attempts: number,
         private finalizeTransition: (from: State, to: State) => boolean,
         public name: OptionName,
-    ) { }
+    ) {
+    }
 
     perform(from: State): ActionRes {
-        if (this.inInitSubset(from, this.name)) {
+        if (!this.inInitSubset(from, this.name)) {
             return {
                 to: from,
                 reward: Number.NEGATIVE_INFINITY,

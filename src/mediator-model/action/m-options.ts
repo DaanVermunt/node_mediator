@@ -1,5 +1,5 @@
 import Option from '../../MDP/action/option'
-import MState, { HumanConfidence, LoA, toMState, zeroState } from '../state/m-state'
+import MState, { HumanConfidence, LoA, toMState } from '../state/m-state'
 import { getMPrimitives, PrimitiveName } from './m-primitives'
 import { SimulationState } from '../../simulation/simulation-state'
 import { State } from '../../MDP/state/state'
@@ -38,12 +38,10 @@ const getPolicyFunction = (option: OptionName, primitives: Record<PrimitiveName,
         case 'upgrade':
             return primitives.loa_up
         case 'downgrade':
-            return primitives.loa_up
+            return primitives.loa_down
     }
 }
 
-
-// TODO handle simstate
 export const getMOptions = (mStates: MState[], simState: SimulationState, nrSteps: number): Option[] => {
     const primitives = getMPrimitives(mStates, simState, nrSteps)
 
@@ -67,7 +65,10 @@ export const getMOptions = (mStates: MState[], simState: SimulationState, nrStep
         getIsInInitSubset(),
         getPolicyFunction('downgrade', primitives),
         1,
-        (from: MState, to: MState) => from.loa - 1 === to.loa,
+        (from: MState, to: MState) => {
+            const res = from.loa - 1 === to.loa
+            return res
+        },
         'downgrade',
     )
 

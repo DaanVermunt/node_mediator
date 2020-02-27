@@ -16,7 +16,7 @@ export function writeContextHistory(simState: SimulationState, to: number) {
 
     // ROWS
     for (let i = 0; i < to; i++) {
-        resString += `${i}, `
+        resString += `${i}`
         Object.values(context.factors).forEach(factor => {
             resString += `,${factor.getAtT(i)}`
         })
@@ -39,8 +39,9 @@ export function writeStateActionHistory(stateActionHistory: StateActionHistoryIt
 
     // ROWS
     stateActionHistory.forEach((histItem, idx) => {
-        resString += `${idx}, `
+        resString += `${idx}`
         // @ts-ignore
+        // tslint:disable-next-line
         Object.values(histItem).forEach((item) => {
             resString += `,${item}`
         })
@@ -63,7 +64,7 @@ export function writeTTHistory(TThistory: TimeTos[]) {
 
     // ROWS
     TThistory.forEach((histItem, idx) => {
-        resString += `${idx}, `
+        resString += `${idx}`
         LoAArray.forEach((loa: number) => {
             resString += `,${histItem.TTA[loa as LoA]}`
             resString += `,${histItem.TTD[loa as LoA]}`

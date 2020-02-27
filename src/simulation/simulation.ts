@@ -8,8 +8,9 @@ import { FactorInput, Prediction } from './factor'
 interface Scenario {
     action_effects: object[] // TODO implement interface
     factors: FactorInput[]
-    totalT?: number,
-    description: string,
+    totalT?: number
+    startLoa?: LoA
+    description: string
 }
 
 const tap = <T>(f: (x: T) => T) => {
@@ -45,6 +46,7 @@ export const getACfromSimState = (simState: SimulationState, at = simState.t): A
     } else if (predictionIsSafe(loa1Pred) || predictionIsSafe(loa2Pred)) {
         return AutonomousConfidence.AC1
     }
+
     return AutonomousConfidence.AC0
 }
 
@@ -52,7 +54,7 @@ export const getACfromSimState = (simState: SimulationState, at = simState.t): A
 TODO: Here we should be able to play with safety options i.e. how sure should we be.
       This can even be more extreme where we define this per certainty level; sure, expected, worse case etc.
     */
-export const predictionIsSafe = (pred: Prediction): boolean => pred.value < .8
+export const predictionIsSafe = (pred: Prediction): boolean => pred.value > .8
 
 export const getFirstSafeAt = (preds: Prediction[]): number => {
     return preds
@@ -79,6 +81,7 @@ class Simulation {
         // Check for valid factors
         this.context = new Context(scenario.factors)
 
+        this.curLoA = scenario.startLoa || LoA.LoA1
         // Create first SimState
     }
 

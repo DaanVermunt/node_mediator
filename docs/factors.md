@@ -1,6 +1,3 @@
-
-
-
 # The factors file should be structured as follows
 The factors file should be a JSON file containing an array of objects. Each object describes a single factor.
 For each factor a the following parameters can or must be set.
@@ -13,17 +10,19 @@ For each factor a the following parameters can or must be set.
     "type": "'static' | 'modeled'",
     "set_manually": "true | false",
     "dependence": "'exogenous' | 'endogenous'",
-    "error": "number",
+    "error_low": "Formula",
+    "error_high": "Formula",
     "helper": "true | false"
   }
 ]
 ```
 # Required factors
-Factors with the name ```D_LOA*``` and ```A_LOA*``` for every automation state.
-These values define level of confidence of either the drive ```D_LOA``` or automation ```A_LOA``` at a moment in time, within the domain ```[0, 1]```.
+Factors with the name `D_LOA*` and `A_LOA*` for every automation state.
+These values define level of confidence of either the drive `D_LOA` or automation `A_LOA` at a moment in time, within the domain `[0, 1]`.
 Otherwise the value will be capped to this domain.
 
 # Detailed description of variables
+Here we describe per variable how they should be used, and are processed.
 
 name
 ----
@@ -60,10 +59,15 @@ If set to `true` we are able to manually change it as the simulation is running.
 
 dependence
 ----------
-The `dependence` variable defined if the value should be computed as a Formula of other factors.
+The `dependence` variable defined if the value should be computed as a Formula
+of other factors, this also makes a difference in how error is handles.
+As for endogenous variables error is calculated as a an error of its components,
+while for exogenous it must be defined, or it is considered to equal 0.
 
-error
+error_low, error_high
 -----
+First of all, error is only relevant for exogenous variables as for endogenous variables it is computed via their components.
+
 At this point the measurement error is normally distributed with mean of the real value
 and as standard deviation the `error` value value. For endogenous variables we do not define an error as the value is
 computed from the input values of the exogenous variables.

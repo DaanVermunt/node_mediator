@@ -1,7 +1,6 @@
 import { Solver } from './solver'
 import { Problem } from '../process/problem'
 import QFunction from './q-function'
-import MState from '../../mediator-model/state/m-state'
 
 class ValueIteration implements Solver {
     constructor(
@@ -19,16 +18,9 @@ class ValueIteration implements Solver {
                     const { to, reward, numberOfSteps } = action.perform(state)
 
                     const qCurrent = q.get(state.h(), action.h())
-
                     const val = qCurrent + this.lr * (reward + Math.pow(this.gamma, numberOfSteps) * q.maxQValue(to.h()) - qCurrent)
 
-                    // if (numberOfSteps >= 1) {
-                    //     console.log('-----------------------------')
-                    //     console.log(numberOfSteps)
-                    // }
-
                     q.set(state.h(), action.h(), val)
-
                 })
             })
         }

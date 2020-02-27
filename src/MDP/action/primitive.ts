@@ -1,5 +1,5 @@
 import { State, StateHash } from '../state/state'
-import { Action, ActionHash, ActionRes, nullRes } from './action'
+import { Action, ActionRes, nullRes } from './action'
 import { PrimitiveName } from '../../mediator-model/action/m-primitives'
 
 class Primitive implements Action {
@@ -19,7 +19,7 @@ class Primitive implements Action {
             Object.keys(transitions).length === 0 ||
             Object.values(transitions).reduce((sum, val) => sum + val) <= 0
         ) {
-            return nullRes(from)
+           return nullRes(from)
         }
 
         const totalProb = Object.values(transitions).reduce((sum, val) => sum + val)

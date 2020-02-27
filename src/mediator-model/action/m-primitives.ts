@@ -24,7 +24,7 @@ export const getTransFunction = (simState: SimulationState, maxTime: number) => 
     switch (action) {
         case 'do_nothing':
             const stateTo = new MState(newHC, from.loa, newAC, from.time + 1)
-            trans[stateTo.h()] += 1
+            trans[stateTo.h()] = trans[stateTo.h()] ? trans[stateTo.h()] + 1 : 1
             break
 
         case 'hc_up':
@@ -33,29 +33,32 @@ export const getTransFunction = (simState: SimulationState, maxTime: number) => 
                 // TODO compute new HC based on action HC up
                 const failState = new MState(newHC, from.loa, newAC, from.time + 1)
 
-                trans[goalState.h()] += 1
-                trans[failState.h()] += 0
+                trans[goalState.h()] = trans[goalState.h()] ? trans[goalState.h()] + 1 : 1
+                trans[failState.h()] = trans[failState.h()] ? trans[failState.h()] + 0 : 0
             }
             break
+
         case 'loa_down':
             if (from.loa > LoA.LoA0) {
                 const goalState = new MState(newHC, from.loa - 1, newAC, from.time + 1)
                 const failState = new MState(newHC, from.loa, newAC, from.time + 1)
 
-                trans[goalState.h()] += 1
-                trans[failState.h()] += 0
+                trans[goalState.h()] = trans[goalState.h()] ? trans[goalState.h()] + 1 : 1
+                trans[failState.h()] = trans[failState.h()] ? trans[failState.h()] + 0 : 0
             }
             break
+
         case 'loa_up':
             if (from.loa < LoA.LoA2) {
                 const goalState = new MState(newHC, from.loa + 1, newAC, from.time + 1)
                 const failState = new MState(newHC, from.loa, newAC, from.time + 1)
 
-                trans[goalState.h()] += 1
-                trans[failState.h()] += 0
+                trans[goalState.h()] = trans[goalState.h()] ? trans[goalState.h()] + 1 : 1
+                trans[failState.h()] = trans[failState.h()] ? trans[failState.h()] + 0 : 0
             }
             break
     }
+
     return trans
 }
 
