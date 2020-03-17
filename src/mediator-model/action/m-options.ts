@@ -42,6 +42,13 @@ const getPolicyFunction = (option: OptionName, primitives: Record<PrimitiveName,
     }
 }
 
+const isMState = (state: State): state is MState => state instanceof MState
+
+const logWrongType = (res: boolean): boolean => {
+    console.error('ERROR IN TYPING')
+    return res
+}
+
 export const getMOptions = (mStates: MState[], simState: SimulationState, nrSteps: number): Option[] => {
     const primitives = getMPrimitives(mStates, simState, nrSteps)
 
@@ -49,7 +56,7 @@ export const getMOptions = (mStates: MState[], simState: SimulationState, nrStep
         getIsInInitSubset(),
         getPolicyFunction('passive', primitives),
         1,
-        (from: MState, to: MState) => from.time !== to.time,
+        (from: State, to: State) => isMState(from) && isMState(to) ? from.time !== to.time : logWrongType(true),
         'passive',
     )
 
@@ -57,7 +64,7 @@ export const getMOptions = (mStates: MState[], simState: SimulationState, nrStep
         getIsInInitSubset(),
         getPolicyFunction('upgrade', primitives),
         1,
-        (from: MState, to: MState) => from.loa + 1 === to.loa,
+        (from: State, to: State) => isMState(from) && isMState(to) ? from.loa + 1 === to.loa : logWrongType(true),
         'upgrade',
     )
 
@@ -65,10 +72,7 @@ export const getMOptions = (mStates: MState[], simState: SimulationState, nrStep
         getIsInInitSubset(),
         getPolicyFunction('downgrade', primitives),
         1,
-        (from: MState, to: MState) => {
-            const res = from.loa - 1 === to.loa
-            return res
-        },
+        (from: State, to: State) => isMState(from) && isMState(to) ? from.loa - 1 === to.loa : logWrongType(true),
         'downgrade',
     )
 
@@ -77,7 +81,7 @@ export const getMOptions = (mStates: MState[], simState: SimulationState, nrStep
         getIsInInitSubset(),
         getPolicyFunction('wake_up', primitives),
         1,
-        (from: MState, to: MState) => from.humanConfidence + 1 === to.humanConfidence,
+        (from: State, to: State) => isMState(from) && isMState(to) ?  from.humanConfidence + 1 === to.humanConfidence : logWrongType(true),
         'wake_up',
     )
 

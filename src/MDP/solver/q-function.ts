@@ -14,6 +14,7 @@ class QFunction {
                 this.qValues[state.h()][action.h()] = 0
             })
         })
+        this.maxQValue = this.maxQValue.bind(this)
     }
 
     qValues: Record<StateHash, Record<ActionHash, number>>
@@ -27,13 +28,9 @@ class QFunction {
     }
 
     maxQValue(state: StateHash): number {
-        const maxx = Object.values(this.qValues[state])
+        const maxQ = Object.values(this.qValues[state])
             .reduce((max, val) => val > max ? val : max, Number.NEGATIVE_INFINITY)
-        if (Math.random() < .00) {
-            console.log(Object.values(this.qValues[state]))
-            console.log(maxx)
-        }
-        return maxx
+        return maxQ
     }
 
     getMaxAction(state: StateHash): Action {

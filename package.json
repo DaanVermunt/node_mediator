@@ -4,12 +4,29 @@
   "main": "index.js",
   "license": "MIT",
   "devDependencies": {
+    "@types/jest": "^25.1.4",
+    "jest": "^25.1.0",
+    "ts-jest": "^25.2.1",
     "tslint": "^5.20.1",
     "tslint-eslint-rules": "^5.4.0",
-    "typescript": "^3.7.4"
+    "typescript": "^3.8.3"
   },
   "scripts": {
-    "run:watch": "nodemon"
+    "run:watch": "nodemon",
+    "test": "jest"
+  },
+  "jest": {
+    "preset": "ts-jest",
+    "moduleFileExtensions": [
+      "js",
+      "ts",
+      "tsx"
+    ],
+    "roots": [
+      "<rootDir>/src"
+    ],
+    "testEnvironment": "node",
+    "testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.tsx?$"
   },
   "dependencies": {
     "@types/argparse": "^1.0.38",

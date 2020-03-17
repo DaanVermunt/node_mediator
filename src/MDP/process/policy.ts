@@ -3,7 +3,7 @@ import { State, StateHash } from '../state/state'
 import QFunction from '../solver/q-function'
 import { sortMStates } from '../../helper/model/sort'
 import Option from '../../MDP/action/option'
-import MState, { HumanConfidence, LoA } from '../../mediator-model/state/m-state'
+import MState, { AutonomousConfidence, HumanConfidence, LoA } from '../../mediator-model/state/m-state'
 import { OptionName } from '../../mediator-model/action/m-options'
 
 export type Policy = (state: State) => Action
@@ -32,11 +32,16 @@ const actionToArrow = (action: OptionName): string => {
     }
 }
 
-export const mPolicyToString = (states: MState[], policy: PolicyVector, qFunction: QFunction, maxHorizon: number = Number.POSITIVE_INFINITY): string => {
+export const mPolicyToString = (
+    states: MState[],
+    policy: PolicyVector,
+    qFunction: QFunction,
+    maxHorizon: number = Number.POSITIVE_INFINITY,
+): string => {
     states = states.reduce((unique, state) => {
         const duplicate = unique.find(st => st.loa === state.loa && st.time === state.time && st.humanConfidence === state.humanConfidence)
 
-        if (duplicate) {
+        if (duplicate || state.autonomousConfidence !== AutonomousConfidence.AC2) {
             return unique
         }
         return [...unique, state]
@@ -53,33 +58,34 @@ export const mPolicyToString = (states: MState[], policy: PolicyVector, qFunctio
         .filter(state => state.time < maxHorizon)
         .forEach(state => {
 
-        if (state.time !== t) {
-            res += `\n\t T = ${state.time}`
-            t = state.time
-        }
-
-        if (state.loa !== loa) {
-            res += '\n'
-            loa = state.loa
-
-            if (loa === LoA.LoA1) {
-                res += 'LOA'
+            if (state.time !== t) {
+                res += `\n\t T = ${state.time}`
+                t = state.time
             }
 
-            res += '\t'
-        }
+            if (state.loa !== loa) {
+                res += '\n'
+                loa = state.loa
 
-        const action = policy[state.h()]
-        if (action instanceof Option) {
-            // res += `[${actionToArrow(action.name)}]`
-            res += `[${actionToArrow(action.name)}, ${qFunction.get(state.h(), action.h()).toFixed(2)}]`
-            // res += `[${state.loa + ',' + state.humanConfidence}, ${actionToArrow(action.name)}, ${qFunction.get(state.h(), action.h()).toFixed(0)}]`
-        }
+                if (loa === LoA.LoA1) {
+                    res += 'LOA'
+                }
 
-        if (state.loa === LoA.LoA0 && state.humanConfidence === HumanConfidence.HC2) {
-            res += '\n\t\t HC \n'
-        }
-    })
+                res += '\t'
+            }
+
+            const action = policy[state.h()]
+            if (action instanceof Option) {
+                // res += `[${actionToArrow(action.name)}]`
+                res += `[${actionToArrow(action.name)}, ${state.autonomousConfidence} ,${qFunction.get(state.h(), action.h()).toFixed(2)}]`
+                // res += `[${state.loa + ',' + state.humanConfidence}, ${actionToArrow(action.name)},
+                // ${qFunction.get(state.h(), action.h()).toFixed(0)}]`
+            }
+
+            if (state.loa === LoA.LoA0 && state.humanConfidence === HumanConfidence.HC2) {
+                res += '\n\t\t HC \n'
+            }
+        })
 
     return res
 }

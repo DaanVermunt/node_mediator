@@ -4,6 +4,7 @@
     "strictNullChecks": true,
     "module": "commonjs",
     "target": "ESNext",
+    "strict": true,
     "sourceMap": true,
     "declaration": false
   }

@@ -1,6 +1,7 @@
 import { ArgumentParser } from 'argparse'
 
 export const argparser: ArgumentParser = new ArgumentParser()
+
 argparser.addArgument(
     ['-i'],
     {

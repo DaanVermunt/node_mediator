@@ -5,7 +5,6 @@ import { Solver } from '../solver/solver'
 import ValueIteration from '../solver/value-iteration'
 import { policyFromQFunc, PolicyVector } from './policy'
 import QFunction from '../solver/q-function'
-import MState, { AutonomousConfidence, HumanConfidence, LoA } from '../../mediator-model/state/m-state'
 
 class Process {
     constructor(
@@ -26,14 +25,30 @@ class Process {
 
     private readonly problem: Problem
     private solver: Solver
-    public qFunction: QFunction
+    private qFunction?: QFunction
     // TODO Maybe change this to policy function
-    public policy: PolicyVector
+    public policy?: PolicyVector
 
     getAction(): (Action | undefined) {
         this.qFunction = this.solver.solve(this.problem)
         this.policy = policyFromQFunc(this.qFunction)
         return this.policy[this.curState.h()]
+    }
+
+    public getQFunction(): QFunction {
+        if (this.qFunction) {
+            return this.qFunction
+        } else {
+            throw Error('QFunction not init')
+        }
+    }
+
+    public getPolicy(): PolicyVector {
+        if (this.policy) {
+            return this.policy
+        } else {
+            throw Error('QFunction not init')
+        }
     }
 }
 

@@ -14,11 +14,11 @@ export enum LoA {
     LoA2,
 }
 
-export const requiredFactors = Object.keys(LoA)
-    .filter(loa => isNaN(Number(loa)))
-    .reduce((res, loa) => {
-        return [`D_${loa}`, `A_${loa}`, ...res]
-    }, [])
+// export const requiredFactors = Object.keys(LoA)
+//     .filter(loa => isNaN(Number(loa)))
+//     .reduce((res, loa) => {
+//         return [`D_${loa}`, `A_${loa}`, ...res]
+//     }, [])
 
 export enum AutonomousConfidence {
     AC0,
@@ -38,6 +38,12 @@ export const toMState = (state: State): (MState | null) => {
     return null
 }
 
+export const r = {
+    high: 100,
+    zero: 0,
+    bad: -100,
+}
+
 class MState implements State {
     constructor(
         public readonly humanConfidence: HumanConfidence,
@@ -53,14 +59,8 @@ class MState implements State {
 
     // TODO does this depend on the current sim state?
     reward(): number {
-        const r = {
-            high: 100,
-            zero: 0,
-            bad: -100,
-        }
-
         if (this.time === -1) {
-            return 0
+            return r.zero
         }
 
         const ac = this.autonomousConfidence

@@ -18,12 +18,12 @@ export interface TimeTos {
     TTA: Record<LoA, number>
 }
 
-export function writeTTs(TTs: TimeTos) {
-    Object.keys(TTs)
-        .forEach((TT: keyof TimeTos) => {
-            const ttrec: Record<LoA, number> = TTs[TT]
-            console.log(ttrec[LoA.LoA0])
-            console.log(ttrec[LoA.LoA1])
-            console.log(ttrec[LoA.LoA2])
-       })
-}
+// export function writeTTs(TTs: TimeTos) {
+//     Object.keys(TTs)
+//         .forEach((TT: keyof TimeTos) => {
+//             const ttrec: Record<LoA, number> = TTs[TT]
+//             console.log(ttrec[LoA.LoA0])
+//             console.log(ttrec[LoA.LoA1])
+//             console.log(ttrec[LoA.LoA2])
+//        })
+// }

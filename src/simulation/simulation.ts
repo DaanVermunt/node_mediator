@@ -20,7 +20,9 @@ const tap = <T>(f: (x: T) => T) => {
     }
 }
 
-export const getHCfromSimState = (simState: SimulationState, at = simState.t): HumanConfidence => {
+export const getHCfromSimState = (simState: SimulationState, tDelta: number = 0): HumanConfidence => {
+    const at = simState.t + tDelta
+
     const loa0Pred = simState.context.getFactor('D_LoA0').getPrediction(at, 1)[0]
     const loa1Pred = simState.context.getFactor('D_LoA1').getPrediction(at, 1)[0]
     const loa2Pred = simState.context.getFactor('D_LoA2').getPrediction(at, 1)[0]
@@ -33,7 +35,8 @@ export const getHCfromSimState = (simState: SimulationState, at = simState.t): H
 }
 
 // TODO , were do we get this param (20 probably linked to future Scope)
-export const getACfromSimState = (simState: SimulationState, at = simState.t): AutonomousConfidence => {
+export const getACfromSimState = (simState: SimulationState, tDelta: number = 0): AutonomousConfidence => {
+    const at = simState.t + tDelta
 
     const loa1Pred = simState.context.getFactor('A_LoA1').getPrediction(at, 1)[0]
     const loa2Pred = simState.context.getFactor('A_LoA2').getPrediction(at, 1)[0]
@@ -81,7 +84,7 @@ class Simulation {
         // Check for valid factors
         this.context = new Context(scenario.factors)
 
-        this.curLoA = scenario.startLoa || LoA.LoA1
+        this.curLoA = scenario.startLoa || LoA.LoA0
         // Create first SimState
     }
 
