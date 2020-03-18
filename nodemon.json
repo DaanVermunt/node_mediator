@@ -1,5 +1,6 @@
 {
   "watch": ["src"],
+  "ignore": ["*.spec.ts"],
   "ext": "ts",
   "exec": "ts-node ./src/main.ts -i ./data/scenario1.json"
 }

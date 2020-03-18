@@ -28,6 +28,12 @@
       "type": "modeled",
       "dependence": "endogenous"
     },
+    {
+      "name": "D_LoA3",
+      "value": "${HC} > .1 ? 1 : 0",
+      "type": "modeled",
+      "dependence": "endogenous"
+    },
 
     {
       "name": "A_LoA0",
@@ -44,6 +50,12 @@
     {
       "name": "A_LoA2",
       "value": "${AC} > .7 ? 1 : 0",
+      "type": "modeled",
+      "dependence": "endogenous"
+    },
+    {
+      "name": "A_LoA3",
+      "value": "${AC} > .9 ? 1 : 0",
       "type": "modeled",
       "dependence": "endogenous"
     },

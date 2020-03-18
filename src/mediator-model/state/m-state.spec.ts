@@ -38,7 +38,7 @@ test('multiple cases', () => {
             hc: HumanConfidence.HC2,
             loa: LoA.LoA0,
             ac: AutonomousConfidence.AC1,
-            reward: r.high,
+            reward: r.medium,
         },
     ]
 

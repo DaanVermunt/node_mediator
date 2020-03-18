@@ -41,7 +41,7 @@ export const mPolicyToString = (
     states = states.reduce((unique, state) => {
         const duplicate = unique.find(st => st.loa === state.loa && st.time === state.time && st.humanConfidence === state.humanConfidence)
 
-        if (duplicate || state.autonomousConfidence !== AutonomousConfidence.AC2) {
+        if (duplicate || state.autonomousConfidence !== AutonomousConfidence.AC3) {
             return unique
         }
         return [...unique, state]
@@ -82,7 +82,7 @@ export const mPolicyToString = (
                 // ${qFunction.get(state.h(), action.h()).toFixed(0)}]`
             }
 
-            if (state.loa === LoA.LoA0 && state.humanConfidence === HumanConfidence.HC2) {
+            if (state.loa === LoA.LoA0 && state.humanConfidence === HumanConfidence.HC3) {
                 res += '\n\t\t HC \n'
             }
         })

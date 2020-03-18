@@ -28,7 +28,7 @@ export const getTransFunction = (simState: SimulationState, maxTime: number) => 
             break
 
         case 'hc_up':
-            if (from.humanConfidence < HumanConfidence.HC2) {
+            if (from.humanConfidence < HumanConfidence.HC3) {
                 const goalState = new MState(from.humanConfidence + 1, from.loa, newAC, from.time + 1)
                 // TODO compute new HC based on action HC up
                 const failState = new MState(newHC, from.loa, newAC, from.time + 1)
@@ -49,7 +49,7 @@ export const getTransFunction = (simState: SimulationState, maxTime: number) => 
             break
 
         case 'loa_up':
-            if (from.loa < LoA.LoA2) {
+            if (from.loa < LoA.LoA3) {
                 const goalState = new MState(newHC, from.loa + 1, newAC, from.time + 1)
                 const failState = new MState(newHC, from.loa, newAC, from.time + 1)
 

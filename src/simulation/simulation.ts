@@ -26,9 +26,13 @@ export const getHCfromSimState = (simState: SimulationState, tDelta: number = 0)
     const loa0Pred = simState.context.getFactor('D_LoA0').getPrediction(at, 1)[0]
     const loa1Pred = simState.context.getFactor('D_LoA1').getPrediction(at, 1)[0]
     const loa2Pred = simState.context.getFactor('D_LoA2').getPrediction(at, 1)[0]
+    const loa3Pred = simState.context.getFactor('D_LoA3').getPrediction(at, 1)[0]
+
     if (predictionIsSafe(loa0Pred)) {
+        return HumanConfidence.HC3
+    } else if (predictionIsSafe(loa1Pred)) {
         return HumanConfidence.HC2
-    } else if (predictionIsSafe(loa1Pred) || predictionIsSafe(loa2Pred)) {
+    } else if (predictionIsSafe(loa2Pred)) {
         return HumanConfidence.HC1
     }
     return HumanConfidence.HC0
@@ -45,11 +49,12 @@ export const getACfromSimState = (simState: SimulationState, tDelta: number = 0)
     const longTimeSafe = prediction.filter(predictionIsSafe).length === 20
 
     if (longTimeSafe) {
-        return AutonomousConfidence.AC2
-    } else if (predictionIsSafe(loa1Pred) || predictionIsSafe(loa2Pred)) {
+        return AutonomousConfidence.AC3
+    } else if (predictionIsSafe(loa1Pred)) {
         return AutonomousConfidence.AC1
+    } else if (predictionIsSafe(loa2Pred)) {
+        return AutonomousConfidence.AC2
     }
-
     return AutonomousConfidence.AC0
 }
 
@@ -104,11 +109,13 @@ class Simulation {
             t: this.t,
             inOption: false,
             TTA: {
+                [LoA.LoA3]: this.getTT('A_LoA3', futureScope),
                 [LoA.LoA2]: this.getTT('A_LoA2', futureScope),
                 [LoA.LoA1]: this.getTT('A_LoA1', futureScope),
                 [LoA.LoA0]: this.getTT('A_LoA0', futureScope),
             },
             TTD: {
+                [LoA.LoA3]: this.getTT('D_LoA3', futureScope),
                 [LoA.LoA2]: this.getTT('D_LoA2', futureScope),
                 [LoA.LoA1]: this.getTT('D_LoA1', futureScope),
                 [LoA.LoA0]: this.getTT('D_LoA0', futureScope),

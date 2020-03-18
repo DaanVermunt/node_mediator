@@ -6,12 +6,14 @@ export enum HumanConfidence {
     HC0,
     HC1,
     HC2,
+    HC3,
 }
 
 export enum LoA {
     LoA0,
     LoA1,
     LoA2,
+    LoA3,
 }
 
 // export const requiredFactors = Object.keys(LoA)
@@ -24,6 +26,7 @@ export enum AutonomousConfidence {
     AC0,
     AC1,
     AC2,
+    AC3,
 }
 
 export const toMState = (state: State): (MState | null) => {
@@ -39,9 +42,19 @@ export const toMState = (state: State): (MState | null) => {
 }
 
 export const r = {
+    top: 110,
     high: 100,
+    medium: 90,
+    low: 80,
     zero: 0,
     bad: -100,
+}
+
+export const loaR = {
+    [LoA.LoA0]: r.low,
+    [LoA.LoA1]: r.medium,
+    [LoA.LoA2]: r.high,
+    [LoA.LoA3]: r.top,
 }
 
 class MState implements State {
@@ -64,6 +77,24 @@ class MState implements State {
         return 0
     }
 
+    isSafe(ac: AutonomousConfidence, hc: HumanConfidence, loa: LoA): boolean {
+        // HACKY BUT EFFECTIVE
+        if (ac < loa) {
+            return false
+        }
+
+        switch (loa) {
+            case LoA.LoA0:
+                return hc === HumanConfidence.HC3
+            case LoA.LoA1:
+                return hc >= HumanConfidence.HC2
+            case LoA.LoA2:
+                return hc >= HumanConfidence.HC1
+            case LoA.LoA3:
+                return true
+        }
+    }
+
     // TODO does this depend on the current sim state?
     reward(): number {
         if (this.time === -1) {
@@ -74,28 +105,7 @@ class MState implements State {
         const hc = this.humanConfidence
         const loa = this.loa
 
-        if (loa === LoA.LoA0) {
-            if (hc === HumanConfidence.HC2) {
-                return r.high
-            }
-            return r.bad
-        }
-
-        if (loa === LoA.LoA1) {
-            if (ac === AutonomousConfidence.AC0 || hc === HumanConfidence.HC0) {
-                return r.bad
-            } else if (ac === AutonomousConfidence.AC1) {
-                return r.high
-            }
-            return r.zero
-        }
-
-        // IF loa === LoA.LoA2
-        if (ac === AutonomousConfidence.AC0 || ac === AutonomousConfidence.AC1) {
-            return r.bad
-        }
-        return r.high
-
+        return this.isSafe(ac, hc, loa) ? loaR[loa] : r.bad
     }
 
     toString(): string {

@@ -40,11 +40,13 @@ class Context {
         // Return current LoA, i.e. prev and new after action performed
         if (action) {
             const loaUp = {
-                [LoA.LoA2]: LoA.LoA2,
+                [LoA.LoA3]: LoA.LoA3,
+                [LoA.LoA2]: LoA.LoA3,
                 [LoA.LoA1]: LoA.LoA2,
                 [LoA.LoA0]: LoA.LoA1,
             }
             const loaDown = {
+                [LoA.LoA3]: LoA.LoA2,
                 [LoA.LoA2]: LoA.LoA1,
                 [LoA.LoA1]: LoA.LoA0,
                 [LoA.LoA0]: LoA.LoA0,

@@ -16,9 +16,9 @@ const getIsInInitSubset = () => (st: State, option: OptionName): boolean => {
         case 'passive':
             return true
         case 'wake_up':
-            return state.humanConfidence !== HumanConfidence.HC2
+            return state.humanConfidence !== HumanConfidence.HC3
         case 'upgrade':
-            return state.loa !== LoA.LoA2
+            return state.loa !== LoA.LoA3
         case 'downgrade':
             return state.loa !== LoA.LoA0
     }
