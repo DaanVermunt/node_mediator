@@ -57,6 +57,13 @@ class MState implements State {
         return this.toString()
     }
 
+    transitionCost(from: MState): number {
+        if (from.loa !== this.loa) {
+            return 10
+        }
+        return 0
+    }
+
     // TODO does this depend on the current sim state?
     reward(): number {
         if (this.time === -1) {
