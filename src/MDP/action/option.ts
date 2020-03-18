@@ -10,6 +10,7 @@ class Option implements Action {
         private attempts: number,
         private finalizeTransition: (from: State, to: State) => boolean,
         public name: OptionName,
+        public cost: number = 0,
     ) {
     }
 
@@ -41,7 +42,7 @@ class Option implements Action {
             }
             const res = action.perform(curState)
 
-            rewardsSum += res.reward - res.to.transitionCost(curState)
+            rewardsSum += res.reward - this.cost
             doneAttemps += res.numberOfSteps
             nextState = res.to
 

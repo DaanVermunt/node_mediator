@@ -8,6 +8,7 @@ class Primitive implements Action {
         // private transitionMatrix: Record<StateHash, Record<StateHash, number>>,
         private getTransistions: (action: PrimitiveName, from: State) => Record<StateHash, number>,
         private states: Record<StateHash, State>,
+        public cost: number = 0,
     ) {
     }
 
@@ -46,7 +47,7 @@ class Primitive implements Action {
 
         return {
             numberOfSteps: 1,
-            reward: resState.reward(),
+            reward: resState.reward() - this.cost,
             to: resState,
         }
     }

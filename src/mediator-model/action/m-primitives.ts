@@ -1,5 +1,5 @@
 import { Action } from '../../MDP/action/action'
-import MState, { HumanConfidence, LoA, toMState, zeroState } from '../state/m-state'
+import MState, { HumanConfidence, LoA, toMState, transCost, wakeUpCost, zeroState } from '../state/m-state'
 import Primitive from '../../MDP/action/primitive'
 import { State, StateHash } from '../../MDP/state/state'
 import { SimulationState } from '../../simulation/simulation-state'
@@ -83,21 +83,28 @@ export const getMPrimitives = (mStates: MState[], simState: SimulationState, nrS
             'do_nothing',
             // doNothingTrans,
             transFunction,
-            stateList),
+            stateList,
+        ),
         loa_up: new Primitive(
             'loa_up',
             // loaUpTrans,
             transFunction,
-            stateList),
+            stateList,
+            transCost,
+        ),
         loa_down: new Primitive(
             'loa_down',
             // loaDownTrans,
             transFunction,
-            stateList),
+            stateList,
+            transCost,
+        ),
         hc_up: new Primitive(
             'hc_up',
             // hcUpTrans,
             transFunction,
-            stateList),
+            stateList,
+            wakeUpCost,
+        ),
     }
 }

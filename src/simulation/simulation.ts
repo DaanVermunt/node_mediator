@@ -50,10 +50,10 @@ export const getACfromSimState = (simState: SimulationState, tDelta: number = 0)
 
     if (longTimeSafe) {
         return AutonomousConfidence.AC3
-    } else if (predictionIsSafe(loa1Pred)) {
-        return AutonomousConfidence.AC1
     } else if (predictionIsSafe(loa2Pred)) {
         return AutonomousConfidence.AC2
+    } else if (predictionIsSafe(loa1Pred)) {
+        return AutonomousConfidence.AC1
     }
     return AutonomousConfidence.AC0
 }

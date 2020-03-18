@@ -3,10 +3,11 @@ import Simulation, { getACfromSimState, getHCfromSimState } from './simulation/s
 import Process from './MDP/process/process'
 import { AutonomousConfidence, fromSimState, HumanConfidence, LoA } from './mediator-model/state/m-state'
 import { createMStates } from './helper/model/init-states'
-import { getMOptions } from './mediator-model/action/m-options'
-import { TimeTos } from './output/console-out'
+import { getMOptions, OptionName } from './mediator-model/action/m-options'
+import { formatNumber, TimeTos } from './output/console-out'
 import { writeContextHistory, writeStateActionHistory, writeTTHistory } from './output/write-file'
 import QFunction from './MDP/solver/q-function'
+import { actionToArrow } from './MDP/process/policy'
 
 const arg = argparser.parseArgs()
 const d = new Date()
@@ -47,7 +48,6 @@ function mainLoop() {
 
         // Compute MDPState
         const curMState = fromSimState(simState)
-        console.log(curMState.h())
 
         // Get Opt Action
         const process = new Process(mStates, Object.values(prims), curMState, { gamma: .99, lr: .4, n: 50 })
@@ -60,6 +60,8 @@ function mainLoop() {
         // Do Action in Sim
         sim.performAction(action)
         simState = sim.getSimState()
+
+        console.log(`${formatNumber(i)} -- ${curMState.h()} -- ${action ? actionToArrow(action.h() as OptionName) : '[]'}`)
 
         // writeFactors(sim.context, sim.t)
         // writeTTs({ TTA: simState.TTA, TTD: simState.TTD })

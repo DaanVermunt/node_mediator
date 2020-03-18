@@ -19,7 +19,7 @@ export const policyFromQFunc = (qFunc: QFunction): PolicyVector => {
     return policy
 }
 
-const actionToArrow = (action: OptionName): string => {
+export const actionToArrow = (action: OptionName): string => {
     switch (action) {
         case 'downgrade':
             return 'v'

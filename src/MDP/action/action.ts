@@ -16,8 +16,8 @@ export const nullRes: (from: State) => ActionRes = from => ({
 export type ActionHash = string
 
 export interface Action extends Stringable {
-    // TODO take into account penalty for switching state
     perform: (from: State) => ActionRes
     name: string
     h(): string
+    cost?: number
 }

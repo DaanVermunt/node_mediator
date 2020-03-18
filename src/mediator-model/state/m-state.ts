@@ -50,6 +50,9 @@ export const r = {
     bad: -100,
 }
 
+export const transCost = 10
+export const wakeUpCost = 10
+
 export const loaR = {
     [LoA.LoA0]: r.low,
     [LoA.LoA1]: r.medium,
@@ -68,13 +71,6 @@ class MState implements State {
 
     h(): string {
         return this.toString()
-    }
-
-    transitionCost(from: MState): number {
-        if (from.loa !== this.loa) {
-            return 10
-        }
-        return 0
     }
 
     isSafe(ac: AutonomousConfidence, hc: HumanConfidence, loa: LoA): boolean {

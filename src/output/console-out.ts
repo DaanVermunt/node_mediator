@@ -13,6 +13,17 @@ export function writeFactors(context: Context, t: number) {
     })
 }
 
+export function formatNumber(num: number): string {
+    if (num >= 0 && num < 10) {
+        return `00${num}`
+    }
+    if ( num < 100) {
+        return `0${num}`
+    }
+
+    return `${num}`
+}
+
 export interface TimeTos {
     TTD: Record<LoA, number>
     TTA: Record<LoA, number>
