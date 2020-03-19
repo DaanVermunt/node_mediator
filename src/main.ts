@@ -27,7 +27,6 @@ function mainLoop() {
     const TTHistory: TimeTos[] = []
     const stateActionHistory: StateActionHistoryItem[] = []
 
-    // TODO remove small number of steps
     const nrSteps = sim.totalT || 2
 
     // const horizon = sim.horizon || 20

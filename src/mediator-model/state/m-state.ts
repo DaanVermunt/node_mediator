@@ -73,35 +73,29 @@ class MState implements State {
         return this.toString()
     }
 
-    isSafe(ac: AutonomousConfidence, hc: HumanConfidence, loa: LoA): boolean {
-        // HACKY BUT EFFECTIVE
-        if (ac < loa) {
+    isSafe(): boolean {
+        if (this.autonomousConfidence < this.loa) {
             return false
         }
 
-        switch (loa) {
+        switch (this.loa) {
             case LoA.LoA0:
-                return hc === HumanConfidence.HC3
+                return this.humanConfidence === HumanConfidence.HC3
             case LoA.LoA1:
-                return hc >= HumanConfidence.HC2
+                return this.humanConfidence >= HumanConfidence.HC2
             case LoA.LoA2:
-                return hc >= HumanConfidence.HC1
+                return this.humanConfidence >= HumanConfidence.HC1
             case LoA.LoA3:
                 return true
         }
     }
 
-    // TODO does this depend on the current sim state?
     reward(): number {
         if (this.time === -1) {
             return r.zero
         }
 
-        const ac = this.autonomousConfidence
-        const hc = this.humanConfidence
-        const loa = this.loa
-
-        return this.isSafe(ac, hc, loa) ? loaR[loa] : r.bad
+        return this.isSafe() ? loaR[this.loa] : r.bad
     }
 
     toString(): string {

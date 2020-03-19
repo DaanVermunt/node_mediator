@@ -2,21 +2,27 @@ import Factor, { FactorHash, FactorInput } from './factor'
 import { Action } from '../MDP/action/action'
 import { LoA } from '../mediator-model/state/m-state'
 import { OptionName } from '../mediator-model/action/m-options'
+import { PrimitiveName } from '../mediator-model/action/m-primitives'
+import { ActionImpact } from './actionImpact'
 
 class Context {
     factors: Record<FactorHash, Factor>
 
-    constructor(factorList: FactorInput[]) {
-        const boundGetFromFactor = this.getFromValueFromFactor.bind(this)
+    constructor(factorList: FactorInput[], factors?: Record<FactorHash, Factor>) {
+        const boundGetFromFactor = this.getValueFromFactor.bind(this)
 
-        this.factors = factorList.map(fi => {
-            return new Factor({ ...fi, getOtherFactor: boundGetFromFactor })
-        }).reduce((res, factor) => {
-            return { ...res, [factor.h()]: factor }
-        }, {})
+        if (factors) {
+            this.factors = factors
+        } else {
+            this.factors = factorList.map(fi => {
+                return new Factor({ ...fi, getOtherFactor: boundGetFromFactor })
+            }).reduce((res, factor) => {
+                return { ...res, [factor.h()]: factor }
+            }, {})
 
-        // ACTION to init all at t=0
-        this.performAction()
+            // ACTION to init all at t=0
+            this.performAction()
+        }
     }
 
     getFactor(factorName: string): Factor {
@@ -24,20 +30,40 @@ class Context {
         return this.factors[factorName as FactorHash]
     }
 
-    getFromValueFromFactor(factorName: string, atT: number): number {
+    resetImpactsForFactor(factor: FactorHash) {
+        return this.factors[factor] && this.factors[factor].resetSimImpacts()
+    }
+
+    addActionForPredictions(actionImpact: number, factor: FactorHash, time: number): void {
+        Object.values(this.factors).forEach(fac => {
+            fac.prediction = [... fac.trueValues]
+        })
+        return this.factors[factor] && this.factors[factor].addImpactForPredictions(actionImpact, time)
+    }
+
+    getValueFromFactor(factorName: string, atT: number, prediction: boolean): number {
         if (this.getFactor(factorName)) {
-            return this.factors[factorName].getAtT(atT)
+            return this.factors[factorName].getAtT(atT, prediction)
         }
         throw Error('Factor does not exist')
     }
 
-    // TODO do something with more action
-    performAction(action?: Action, curLoA: LoA = LoA.LoA0): LoA {
+    performAction(action?: Action, curLoA: LoA = LoA.LoA0, t: number = 0, impact: ActionImpact[] = []): LoA {
         Object.values(this.factors).forEach(factor => {
-           factor.next()
+            impact
+                .filter(imp => imp.effectFactor === factor.name)
+                .forEach(imp => {
+                    factor.addImpact(imp.meanEffect, t)
+                })
         })
 
-        // Return current LoA, i.e. prev and new after action performed
+        Object.values(this.factors).forEach(factor => {
+            if (factor.trueValues.length <= t) {
+                factor.next()
+            }
+        })
+
+        // SPECIAL LOA ACTIONS
         if (action) {
             const loaUp = {
                 [LoA.LoA3]: LoA.LoA3,
@@ -52,7 +78,7 @@ class Context {
                 [LoA.LoA0]: LoA.LoA0,
             }
 
-            const actionName = action.name as OptionName
+            const actionName = action.name as OptionName | PrimitiveName
 
             if (actionName === 'upgrade') {
                 return loaUp[curLoA]
@@ -64,6 +90,7 @@ class Context {
 
         return curLoA
     }
+
 }
 
 export default Context

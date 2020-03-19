@@ -1,10 +1,14 @@
+import { normal } from 'random'
+import { ActionImpact } from './actionImpact'
+
 export type FactorHash = string
 
 export type DependenceType = 'exogenous' | 'endogenous'
 export type FactorType = 'static' | 'modeled'
+export type FactorName = string
 
 export interface FactorInput {
-    name: string,
+    name: FactorName,
     value: string | number,
     start_value?: number,
     type: FactorType,
@@ -19,12 +23,11 @@ export interface Prediction {
     error: number,
 }
 
-interface FactorInit extends FactorInput {
-    getOtherFactor: (factorName: string, t: number) => number
+export interface FactorInit extends FactorInput {
+    getOtherFactor: (factorName: string, t: number, prediction: boolean) => number
 }
 
 class Factor {
-
     t = 0
 
     name: string
@@ -33,10 +36,13 @@ class Factor {
     startValue: number
     type: FactorType
     error: number
-    getOtherFactor: (factorName: string, t: number) => number
+    getOtherFactor: (factorName: string, t: number, prediction: boolean) => number
     dependence: DependenceType
+    impacts: Record<number, number>
+    simImpacts: Record<number, number>
 
     trueValues = [] as number[]
+    prediction = [] as number[]
     readValues = [] as number[]
 
     constructor(params: FactorInit) {
@@ -48,31 +54,49 @@ class Factor {
         this.formula = this.type === 'modeled' ? params.value as string : ''
         this.startValue = params.start_value ? params.start_value : 0
         this.getOtherFactor = params.getOtherFactor
+
+        this.simImpacts = {}
+        this.impacts = {}
     }
 
-    getAtT(t: number): number {
-        if (this.getT() <= t) {
-            this.next()
-            return this.getAtT(t)
+    getAtT(t: number, prediction = false): number {
+        const history = prediction ? this.prediction : this.trueValues
+        if (history.length <= t) {
+            this.next(prediction)
+            return this.getAtT(t, prediction)
         } else {
-            return this.trueValues[t]
+            return history[t]
         }
     }
 
-    next(): number {
+    next(prediction = false): number {
+        const history = prediction ? this.prediction : this.trueValues
         let updated: number
 
         if (this.type === 'static') {
             updated = this.value
         } else {
-            const parsedForm = this.parseFormula()
+            const parsedForm = this.parseFormula(history, prediction)
             updated = Function(`return ${parsedForm}`).call(null)
             if (updated !== 0 && !updated) {
                 throw Error(`COULD NOT EVAL for ${this.name}: ${parsedForm}`)
             }
         }
 
-        this.trueValues.push(updated)
+        if (prediction) {
+            const impactFromPred = this.simImpacts[history.length] ? this.simImpacts[history.length] : 0
+            updated = updated + impactFromPred
+        } else {
+            const impact = this.impacts[history.length] ? this.impacts[history.length] : 0
+            updated = updated + impact
+        }
+
+        updated = Math.min(Math.max(updated, 0), 1)
+
+        history.push(updated)
+        if (!prediction) {
+            this.prediction = [...this.trueValues]
+        }
         this.readValues.push(this.readValue())
         return updated
     }
@@ -83,14 +107,13 @@ class Factor {
     }
 
     private readValue(): number {
-        // TODO take last value and add uncertainty
         return 0
     }
 
-    private parseFormula(): string {
+    private parseFormula(history: number[], prediction: boolean = false): string {
 
         // replace ${_t}
-        let tmpFormula = this.formula.replace(/\${_t}/g, this.getT().toString())
+        let tmpFormula = this.formula.replace(/\${_t}/g, history.length.toString())
 
         // replace ${-x}
         const backRefs = tmpFormula.match(/\${-[0-9]*}/g)
@@ -99,8 +122,8 @@ class Factor {
             backRefs.forEach(ref => {
                 const backIndex = Number(ref.replace('${', '').replace('}', ''))
                 const backValue =
-                    !isNaN(backIndex) && Math.abs(backIndex) < this.getT()
-                        ? this.trueValues[this.getT() + backIndex]
+                    !isNaN(backIndex) && Math.abs(backIndex) < history.length
+                        ? history[history.length + backIndex]
                         : this.startValue
 
                 tmpFormula = tmpFormula.replace(ref, backValue.toString())
@@ -112,7 +135,7 @@ class Factor {
         if (factorRefs) {
             factorRefs.forEach(ref => {
                 const factorName = ref.replace('${', '').replace('}', '')
-                const factorValue = this.getOtherFactor(factorName, this.getT())
+                const factorValue = this.getOtherFactor(factorName, history.length, prediction)
                 tmpFormula = tmpFormula.replace(ref, factorValue.toString())
             })
         }
@@ -120,27 +143,32 @@ class Factor {
         return tmpFormula
     }
 
-    getLastTrue(): number {
-        return this.trueValues[this.getT() - 1]
-    }
-
     getPrediction(from: number, n: number): Prediction[] {
-        // TODO Find a way to predict instead of using 'real' values
+        // TODO Give worst and best case as well
         const pred: Prediction[] = []
 
         for (let i = from; i < from + n; i++) {
             pred.push({
                 at: i,
                 factorName: this.name,
-                value: this.getAtT(i),
+                value: this.getAtT(i, true),
                 error: this.error,
             })
         }
         return pred
     }
 
-    getT(): number {
-        return this.trueValues.length
+    addImpact(impact: number, time: number) {
+        this.impacts[time] = this.impacts[time] ? this.impacts[time] + impact : impact
+        // Reset prediction
+    }
+
+    addImpactForPredictions(impact: number, time: number) {
+        this.simImpacts[time] = this.simImpacts[time] ? this.simImpacts[time] + impact : impact
+    }
+
+    resetSimImpacts() {
+        this.simImpacts = {}
     }
 }
 

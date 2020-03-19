@@ -9,7 +9,7 @@ export function writePolicy(states: State[], policy: PolicyVector) {
 
 export function writeFactors(context: Context, t: number) {
     Object.values(context.factors).forEach(factor => {
-        console.log(factor.getAtT(t))
+        console.log(factor.getAtT(t, true))
     })
 }
 

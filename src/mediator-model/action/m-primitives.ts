@@ -5,66 +5,77 @@ import { State, StateHash } from '../../MDP/state/state'
 import { SimulationState } from '../../simulation/simulation-state'
 import { getACfromSimState, getHCfromSimState } from '../../simulation/simulation'
 
-export const getTransFunction = (simState: SimulationState, maxTime: number) => (action: PrimitiveName, fr: State): Record<StateHash, number> => {
-    const from = toMState(fr)
-    if (!from) {
-        return {}
-    }
+export const getTransFunction = (simState: SimulationState, maxTime: number) => {
+    return (action: PrimitiveName, fr: State): Record<StateHash, number> => {
+        const from = toMState(fr)
+        if (!from) {
+            return {}
+        }
 
-    const trans = {} as Record<StateHash, number>
+        const trans = {} as Record<StateHash, number>
 
-    if (from.h() === zeroState.h() || from.time === -1 || from.time === maxTime) {
-        trans[zeroState.h()] = 1
+        if (from.h() === zeroState.h() || from.time === -1 || from.time === maxTime) {
+            trans[zeroState.h()] = 1
+            return trans
+        }
+
+        const newAC = getACfromSimState(simState, from.time + 1)
+        const newHC = getHCfromSimState(simState, from.time + 1)
+
+        // Action simImpacts are only for non-loa up and non loa down, i.e. hc_up
+        const actionsImpacts = simState.impacts.filter(impact => impact.effectFrom === action)
+
+        switch (action) {
+            case 'do_nothing':
+                const stateTo = new MState(newHC, from.loa, newAC, from.time + 1)
+                trans[stateTo.h()] = trans[stateTo.h()] ? trans[stateTo.h()] + 1 : 1
+                break
+
+            case 'hc_up':
+                if (from.humanConfidence < HumanConfidence.HC3) {
+                    actionsImpacts.forEach(imp => {
+                        simState.context.addActionForPredictions(imp.meanEffect, imp.effectFactor, simState.t + from.time + 1)
+                    })
+
+                    const newHCWithAction = getHCfromSimState(simState, from.time + 1)
+                    const nextState = new MState(newHCWithAction, from.loa, newAC, from.time + 1)
+
+                    actionsImpacts.forEach(imp => {
+                        simState.context.resetImpactsForFactor(imp.effectFactor)
+                    })
+
+                    trans[nextState.h()] = trans[nextState.h()] ? trans[nextState.h()] + 1 : 1
+                    // trans[failState.h()] = trans[failState.h()] ? trans[failState.h()] + 0 : 0
+                }
+                break
+
+            case 'loa_down':
+                if (from.loa > LoA.LoA0) {
+                    const goalState = new MState(newHC, from.loa - 1, newAC, from.time + 1)
+                    const failState = new MState(newHC, from.loa, newAC, from.time + 1)
+
+                    trans[goalState.h()] = trans[goalState.h()] ? trans[goalState.h()] + 1 : 1
+                    trans[failState.h()] = trans[failState.h()] ? trans[failState.h()] + 0 : 0
+                }
+                break
+
+            case 'loa_up':
+                if (from.loa < LoA.LoA3) {
+                    const goalState = new MState(newHC, from.loa + 1, newAC, from.time + 1)
+                    const failState = new MState(newHC, from.loa, newAC, from.time + 1)
+
+                    trans[goalState.h()] = trans[goalState.h()] ? trans[goalState.h()] + 1 : 1
+                    trans[failState.h()] = trans[failState.h()] ? trans[failState.h()] + 0 : 0
+                }
+                break
+        }
+
         return trans
     }
-
-    const newAC = getACfromSimState(simState, from.time + 1)
-    const newHC = getHCfromSimState(simState, from.time + 1)
-
-    switch (action) {
-        case 'do_nothing':
-            const stateTo = new MState(newHC, from.loa, newAC, from.time + 1)
-            trans[stateTo.h()] = trans[stateTo.h()] ? trans[stateTo.h()] + 1 : 1
-            break
-
-        case 'hc_up':
-            if (from.humanConfidence < HumanConfidence.HC3) {
-                const goalState = new MState(from.humanConfidence + 1, from.loa, newAC, from.time + 1)
-                // TODO compute new HC based on action HC up
-                const failState = new MState(newHC, from.loa, newAC, from.time + 1)
-
-                trans[goalState.h()] = trans[goalState.h()] ? trans[goalState.h()] + 1 : 1
-                trans[failState.h()] = trans[failState.h()] ? trans[failState.h()] + 0 : 0
-            }
-            break
-
-        case 'loa_down':
-            if (from.loa > LoA.LoA0) {
-                const goalState = new MState(newHC, from.loa - 1, newAC, from.time + 1)
-                const failState = new MState(newHC, from.loa, newAC, from.time + 1)
-
-                trans[goalState.h()] = trans[goalState.h()] ? trans[goalState.h()] + 1 : 1
-                trans[failState.h()] = trans[failState.h()] ? trans[failState.h()] + 0 : 0
-            }
-            break
-
-        case 'loa_up':
-            if (from.loa < LoA.LoA3) {
-                const goalState = new MState(newHC, from.loa + 1, newAC, from.time + 1)
-                const failState = new MState(newHC, from.loa, newAC, from.time + 1)
-
-                trans[goalState.h()] = trans[goalState.h()] ? trans[goalState.h()] + 1 : 1
-                trans[failState.h()] = trans[failState.h()] ? trans[failState.h()] + 0 : 0
-            }
-            break
-    }
-
-    return trans
 }
 
 export type PrimitiveName = 'do_nothing' | 'loa_up' | 'loa_down' | 'hc_up'
 
-// TODO get primatives from source files
 /*
 Primatives are ATM:
 - do nothing

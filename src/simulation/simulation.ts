@@ -4,9 +4,10 @@ import { AutonomousConfidence, HumanConfidence, LoA } from '../mediator-model/st
 import Context from './context'
 import { readFileSync } from 'fs'
 import { FactorInput, Prediction } from './factor'
+import { ActionImpact, ActionImpactInput } from './actionImpact'
 
 interface Scenario {
-    action_effects: object[] // TODO implement interface
+    action_effects: ActionImpactInput[] // TODO implement interface
     factors: FactorInput[]
     totalT?: number
     startLoa?: LoA
@@ -78,6 +79,7 @@ class Simulation {
     totalT?: number
     context: Context
     curLoA: LoA
+    impacts: ActionImpact[]
 
     constructor(
         private readonly scenarioFilePath: string,
@@ -91,11 +93,13 @@ class Simulation {
 
         this.curLoA = scenario.startLoa || LoA.LoA0
         // Create first SimState
+        this.impacts = scenario.action_effects ? this.parseImpacts(scenario.action_effects) : []
     }
 
     performAction(action?: Action): void {
-        this.t += 1
-        this.curLoA = this.context.performAction(action, this.curLoA)
+        this.t = this.t + 1
+        const impacts = this.impacts.filter(impact => action && impact.effectFrom === action.name)
+        this.curLoA = this.context.performAction(action, this.curLoA, this.t, impacts)
     }
 
     getTT(factorName: string, futureScope: number, t: number = this.t): number {
@@ -122,7 +126,18 @@ class Simulation {
             },
             context: this.context,
             LoA: this.curLoA,
+            impacts: this.impacts,
         }
+    }
+
+    private parseImpacts(actionEffects: ActionImpactInput[]): ActionImpact[] {
+        return actionEffects.map(ae => ({
+            effectFactor: ae.on_factor,
+            effectFrom: ae.primitive_name,
+            meanEffect: ae.diff,
+            std: ae.std,
+            name: ae.name,
+        }))
     }
 }
 

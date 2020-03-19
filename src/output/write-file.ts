@@ -18,7 +18,7 @@ export function writeContextHistory(simState: SimulationState, to: number) {
     for (let i = 0; i < to; i++) {
         resString += `${i}`
         Object.values(context.factors).forEach(factor => {
-            resString += `,${factor.getAtT(i)}`
+            resString += `,${factor.getAtT(i, false)}`
         })
         resString += `\n`
     }
