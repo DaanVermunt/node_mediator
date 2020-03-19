@@ -42,8 +42,8 @@ class Option implements Action {
             }
             const res = action.perform(curState)
 
-            rewardsSum += res.reward - this.cost
-            doneAttemps += res.numberOfSteps
+            rewardsSum = rewardsSum + res.reward - this.cost
+            doneAttemps =  doneAttemps + res.numberOfSteps
             nextState = res.to
 
         }
