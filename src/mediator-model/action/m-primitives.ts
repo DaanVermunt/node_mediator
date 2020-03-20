@@ -1,11 +1,37 @@
 import { Action } from '../../MDP/action/action'
-import MState, { HumanConfidence, LoA, toMState, transCost, wakeUpCost, zeroState } from '../state/m-state'
+import MState, { AutonomousConfidence, HumanConfidence, LoA, toMState, transCost, wakeUpCost, zeroState } from '../state/m-state'
 import Primitive from '../../MDP/action/primitive'
 import { State, StateHash } from '../../MDP/state/state'
 import { SimulationState } from '../../simulation/simulation-state'
 import { getACfromSimState, getHCfromSimState } from '../../simulation/simulation'
 
 export const getTransFunction = (simState: SimulationState, maxTime: number) => {
+    const impactCach: Record<PrimitiveName, Record<number, { hc: HumanConfidence, ac: AutonomousConfidence }>> = {
+        do_nothing: {},
+        loa_up: {},
+        loa_down: {},
+        hc_up: {},
+    }
+
+    primitiveNames.forEach(primName => {
+        for (let i = 0; i <= maxTime; i++) {
+            // Action simImpacts are only for non-loa up and non loa down, i.e. hc_up
+            const actionsImpacts = simState.impacts.filter(impact => impact.effectFrom === primName)
+            actionsImpacts.forEach(imp => {
+                simState.context.addActionForPredictions(imp.meanEffect, imp.effectFactor, simState.t + i + 1)
+            })
+
+            const newHCWithAction = getHCfromSimState(simState, i + 1)
+            const newACWithAction = getACfromSimState(simState, i + 1)
+
+            actionsImpacts.forEach(imp => {
+                simState.context.resetImpactsForFactor(imp.effectFactor)
+            })
+
+            impactCach[primName][i] = { hc: newHCWithAction, ac: newACWithAction }
+        }
+    })
+
     return (action: PrimitiveName, fr: State): Record<StateHash, number> => {
         const from = toMState(fr)
         if (!from) {
@@ -19,11 +45,8 @@ export const getTransFunction = (simState: SimulationState, maxTime: number) => 
             return trans
         }
 
-        const newAC = getACfromSimState(simState, from.time + 1)
-        const newHC = getHCfromSimState(simState, from.time + 1)
-
-        // Action simImpacts are only for non-loa up and non loa down, i.e. hc_up
-        const actionsImpacts = simState.impacts.filter(impact => impact.effectFrom === action)
+        const newAC = impactCach[action][from.time].ac
+        const newHC = impactCach[action][from.time].hc
 
         switch (action) {
             case 'do_nothing':
@@ -33,19 +56,10 @@ export const getTransFunction = (simState: SimulationState, maxTime: number) => 
 
             case 'hc_up':
                 if (from.humanConfidence < HumanConfidence.HC3) {
-                    actionsImpacts.forEach(imp => {
-                        simState.context.addActionForPredictions(imp.meanEffect, imp.effectFactor, simState.t + from.time + 1)
-                    })
 
-                    const newHCWithAction = getHCfromSimState(simState, from.time + 1)
-                    const nextState = new MState(newHCWithAction, from.loa, newAC, from.time + 1)
-
-                    actionsImpacts.forEach(imp => {
-                        simState.context.resetImpactsForFactor(imp.effectFactor)
-                    })
-
+                    const nextState = new MState(newHC, from.loa, newAC, from.time + 1)
                     trans[nextState.h()] = trans[nextState.h()] ? trans[nextState.h()] + 1 : 1
-                    // trans[failState.h()] = trans[failState.h()] ? trans[failState.h()] + 0 : 0
+
                 }
                 break
 
@@ -75,6 +89,7 @@ export const getTransFunction = (simState: SimulationState, maxTime: number) => 
 }
 
 export type PrimitiveName = 'do_nothing' | 'loa_up' | 'loa_down' | 'hc_up'
+export const primitiveNames: PrimitiveName[] = ['do_nothing', 'loa_up', 'loa_down', 'hc_up']
 
 /*
 Primatives are ATM:
