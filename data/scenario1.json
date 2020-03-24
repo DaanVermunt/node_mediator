@@ -6,13 +6,6 @@
       "on_factor": "sleepiness",
       "diff": -0.2,
       "std": 0.0
-    },
-    {
-      "primitive_name": "wake_up",
-      "name": "alarmOption",
-      "on_factor": "sleepiness",
-      "diff": -0.2,
-      "std": 0.0
     }
   ],
   "totalT": 120,
@@ -83,7 +76,7 @@
 
     {
       "name": "sleepiness",
-      "value": "${_t} === 42 || ${_t} === 2 ?  ${-1} + .4 : ${-1} * 1.01",
+      "value": "${_t} === 42 || ${_t} === 2 ? ${-1} + .4 : ${-1} * 1.01",
       "start_value": 0.01,
       "type": "modeled",
       "dependence": "exogenous",

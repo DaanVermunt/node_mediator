@@ -6,9 +6,9 @@ import { OptionName } from '../../mediator-model/action/m-options'
 class Option implements Action {
     constructor(
         private inInitSubset: (state: State, name: OptionName) => boolean,
-        private policy: Policy,
-        private attempts: number,
-        private finalizeTransition: (from: State, to: State) => boolean,
+        public policy: Policy,
+        public attempts: number,
+        public finalizeTransition: (from: State, to: State) => boolean,
         public name: OptionName,
         public cost: number = 0,
     ) {

@@ -6,6 +6,11 @@ import { State } from '../../MDP/state/state'
 import { Action } from '../../MDP/action/action'
 
 export type OptionName = 'passive' | 'upgrade' | 'downgrade' | 'wake_up'
+export const optionNames = ['passive' , 'upgrade' , 'downgrade' , 'wake_up']
+
+export const isOption = (action?: Action): action is Option => {
+    return action !== undefined && optionNames.includes(action.name)
+}
 
 const getIsInInitSubset = () => (st: State, option: OptionName): boolean => {
     const state = toMState(st)
@@ -76,7 +81,6 @@ export const getMOptions = (mStates: MState[], simState: SimulationState, nrStep
         'downgrade',
     )
 
-    // TODO for wake up, we should capture the underlying consequence of the action see hc_up_primitive
     const wakeUpOption = new Option(
         getIsInInitSubset(),
         getPolicyFunction('wake_up', primitives),

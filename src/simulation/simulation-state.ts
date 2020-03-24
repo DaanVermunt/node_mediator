@@ -11,4 +11,5 @@ export interface SimulationState {
     context: Context
     LoA: LoA
     impacts: ActionImpact[]
+    futureScope: number
 }

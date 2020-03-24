@@ -3,7 +3,7 @@ import Simulation, { getACfromSimState, getHCfromSimState } from './simulation/s
 import Process from './MDP/process/process'
 import { AutonomousConfidence, fromSimState, HumanConfidence, LoA } from './mediator-model/state/m-state'
 import { createMStates } from './helper/model/init-states'
-import { getMOptions, OptionName } from './mediator-model/action/m-options'
+import { getMOptions, isOption, OptionName } from './mediator-model/action/m-options'
 import { formatNumber, TimeTos } from './output/console-out'
 import { writeContextHistory, writeStateActionHistory, writeTTHistory } from './output/write-file'
 import QFunction from './MDP/solver/q-function'
@@ -32,7 +32,7 @@ function mainLoop() {
     // const horizon = sim.horizon || 20
     const horizon = 20 // TODO get from scenario
     const mStates = createMStates(horizon)
-    let prevQ: QFunction | boolean = false
+    // let prevQ: QFunction | boolean = false
 
     let simState = sim.getSimState(horizon)
 
@@ -53,11 +53,17 @@ function mainLoop() {
         const action = process.getAction()
         // console.log(mPolicyToString(mStates, process.getPolicy(), process.getQFunction(), 2))
         // console.log(prevQ && prevQ.equals(process.qFunction))
-        prevQ = process.getQFunction()
+
+        // prevQ = process.getQFunction()
         // ticToc.tic('done_computeAction')
 
-        // Do Action in Sim
-        sim.performAction(action)
+        if (isOption(action)) {
+            sim.performOption(action)
+        } else {
+            // Do Action in Sim
+            sim.performAction(action)
+        }
+
         simState = sim.getSimState()
 
         console.log(`${formatNumber(i)} -- ${curMState.h()} -- ${action ? actionToArrow(action.h() as OptionName) : '[]'}`)

@@ -78,12 +78,12 @@ class Context {
                 [LoA.LoA0]: LoA.LoA0,
             }
 
-            const actionName = action.name as OptionName | PrimitiveName
+            const actionName = action.name as PrimitiveName
 
-            if (actionName === 'upgrade') {
+            if (actionName === 'loa_up') {
                 return loaUp[curLoA]
             }
-            if (actionName === 'downgrade') {
+            if (actionName === 'loa_down') {
                 return loaDown[curLoA]
             }
         }

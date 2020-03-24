@@ -1,13 +1,14 @@
 import { Action } from '../MDP/action/action'
 import { SimulationState } from './simulation-state'
-import { AutonomousConfidence, HumanConfidence, LoA } from '../mediator-model/state/m-state'
+import MState, { AutonomousConfidence, fromSimState, HumanConfidence, LoA } from '../mediator-model/state/m-state'
 import Context from './context'
 import { readFileSync } from 'fs'
 import { FactorInput, Prediction } from './factor'
 import { ActionImpact, ActionImpactInput } from './actionImpact'
+import Option from '../MDP/action/option'
 
 interface Scenario {
-    action_effects: ActionImpactInput[] // TODO implement interface
+    action_effects: ActionImpactInput[]
     factors: FactorInput[]
     totalT?: number
     startLoa?: LoA
@@ -39,7 +40,6 @@ export const getHCfromSimState = (simState: SimulationState, tDelta: number = 0)
     return HumanConfidence.HC0
 }
 
-// TODO , were do we get this param (20 probably linked to future Scope)
 export const getACfromSimState = (simState: SimulationState, tDelta: number = 0): AutonomousConfidence => {
     const at = simState.t + tDelta
 
@@ -102,6 +102,24 @@ class Simulation {
         this.curLoA = this.context.performAction(action, this.curLoA, this.t, impacts)
     }
 
+    performOption(option: Option): void {
+        let done = false
+        let cur: MState | null = null
+        let to: MState | null = null
+        let attempts = 0
+
+        while (!done) {
+            cur = fromSimState(this.getSimState())
+            const act = option.policy(cur)
+
+            this.performAction(act)
+            to = fromSimState(this.getSimState())
+            attempts = attempts + 1
+
+            done = option.finalizeTransition(cur, to) || attempts >= option.attempts
+        }
+    }
+
     getTT(factorName: string, futureScope: number, t: number = this.t): number {
         const prediction = this.context.getFactor(factorName).getPrediction(t, futureScope)
         const firstSafe = getFirstSafeAt(prediction)
@@ -127,6 +145,7 @@ class Simulation {
             context: this.context,
             LoA: this.curLoA,
             impacts: this.impacts,
+            futureScope,
         }
     }
 
