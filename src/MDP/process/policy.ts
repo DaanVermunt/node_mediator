@@ -1,6 +1,6 @@
-import { Action } from '../action/action'
+import { Action, emergencyStop } from '../action/action'
 import { State, StateHash } from '../state/state'
-import QFunction from '../solver/q-function'
+import QFunction, { formatQValue } from '../solver/q-function'
 import { sortMStates } from '../../helper/model/sort'
 import Option from '../../MDP/action/option'
 import MState, { AutonomousConfidence, HumanConfidence, LoA } from '../../mediator-model/state/m-state'
@@ -77,9 +77,11 @@ export const mPolicyToString = (
             const action = policy[state.h()]
             if (action instanceof Option) {
                 // res += `[${actionToArrow(action.name)}]`
-                res += `[${actionToArrow(action.name)}, ${state.autonomousConfidence} ,${qFunction.get(state.h(), action.h()).toFixed(2)}]`
+                res += `[${actionToArrow(action.name)}, ${state.autonomousConfidence} ,${formatQValue(qFunction.get(state.h(), action.h()))}]`
                 // res += `[${state.loa + ',' + state.humanConfidence}, ${actionToArrow(action.name)},
                 // ${qFunction.get(state.h(), action.h()).toFixed(0)}]`
+            } else {
+                res += `[O, ${state.autonomousConfidence} , -]`
             }
 
             if (state.loa === LoA.LoA0 && state.humanConfidence === HumanConfidence.HC3) {

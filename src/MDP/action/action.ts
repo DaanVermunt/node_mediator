@@ -5,12 +5,15 @@ export interface ActionRes {
     to: State
     reward: number
     numberOfSteps: number
+    hasPassedIllegal: boolean
 }
 
 export const nullRes: (from: State) => ActionRes = from => ({
     to: from,
-    reward: Number.NEGATIVE_INFINITY,
+    // reward: Number.NEGATIVE_INFINITY,
+    reward: -10000,
     numberOfSteps: 1,
+    hasPassedIllegal: true,
 })
 
 export type ActionHash = string
@@ -20,4 +23,16 @@ export interface Action extends Stringable {
     name: string
     h(): string
     cost?: number
+}
+
+export const EMERGENCY_STOP = 'EMERGENCY_STOP'
+
+export const emergencyStop: Action = {
+    perform: (state: State) => nullRes(state),
+    name: EMERGENCY_STOP,
+    h: () =>  EMERGENCY_STOP,
+}
+
+export const isEmergencyStop = (action: Action): boolean => {
+    return action.name === EMERGENCY_STOP
 }

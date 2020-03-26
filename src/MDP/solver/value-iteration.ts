@@ -1,8 +1,9 @@
 import { Solver } from './solver'
 import { Problem } from '../process/problem'
-import QFunction from './q-function'
+import QFunction, { ILLEGAL, isNumericQValue, QValue } from './q-function'
 import { Action } from '../action/action'
 import { State, StateHash } from '../state/state'
+import { isMState } from '../../mediator-model/state/m-state'
 
 class ValueIteration implements Solver {
     constructor(
@@ -12,14 +13,32 @@ class ValueIteration implements Solver {
     ) {
     }
 
-    newQValue(qCurrent: number, qMax: (to: StateHash) => number, action: Action, state: State) {
-        const { to, reward, numberOfSteps } = action.perform(state)
-        return qCurrent + this.lr * (reward + Math.pow(this.gamma, numberOfSteps) * qMax(to.h()) - qCurrent)
+    newQValue(qCurrent: QValue, qMax: (to: StateHash) => QValue, action: Action, state: State): QValue {
+        const { to, reward, numberOfSteps, hasPassedIllegal } = action.perform(state)
+        const qMaxVal = qMax(to.h())
+        if (hasPassedIllegal && isMState(state) && state.time < 0 && Math.random() < 0) {
+            console.log('-----------------------------------------------------')
+            console.log(state)
+            console.log(action.h())
+            console.log(to)
+        }
+
+        if (isMState(state) && state.time < 0) {
+           return 0
+        }
+
+        if (isNumericQValue(qCurrent) && isNumericQValue(qMaxVal)) {
+            return qCurrent + this.lr * (reward + Math.pow(this.gamma, numberOfSteps) * qMaxVal - qCurrent)
+        } else {
+            return ILLEGAL
+        }
     }
 
     solve(p: Problem): QFunction {
         const q = new QFunction(p)
-        for (let i = 0; i < this.n; i++) {
+        for (let i = 0; i < 10; i++) {
+            // TODO Uncomment
+            // for (let i = 0; i < this.n; i++) {
             Object.values(p.states).forEach(state => {
                 p.actions.forEach(action => {
                     const qCurrent = q.get(state.h(), action.h())

@@ -49,6 +49,7 @@ class Primitive implements Action {
             numberOfSteps: 1,
             reward: resState.reward() - this.cost,
             to: resState,
+            hasPassedIllegal: !resState.isSafe(),
         }
     }
 

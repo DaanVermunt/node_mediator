@@ -6,8 +6,9 @@ import { createMStates } from './helper/model/init-states'
 import { getMOptions, isOption, OptionName } from './mediator-model/action/m-options'
 import { formatNumber, TimeTos } from './output/console-out'
 import { writeContextHistory, writeStateActionHistory, writeTTHistory } from './output/write-file'
-import QFunction from './MDP/solver/q-function'
-import { actionToArrow } from './MDP/process/policy'
+import { actionToArrow, mPolicyToString } from './MDP/process/policy'
+import { isEmergencyStop } from './MDP/action/action'
+import { State } from './MDP/state/state'
 
 const arg = argparser.parseArgs()
 const d = new Date()
@@ -27,7 +28,7 @@ function mainLoop() {
     const TTHistory: TimeTos[] = []
     const stateActionHistory: StateActionHistoryItem[] = []
 
-    const nrSteps = sim.totalT || 2
+    const nrSteps = 2 || sim.totalT || 2
 
     // const horizon = sim.horizon || 20
     const horizon = 20 // TODO get from scenario
@@ -51,8 +52,14 @@ function mainLoop() {
         // Get Opt Action
         const process = new Process(mStates, Object.values(prims), curMState, { gamma: .99, lr: .4, n: 50 })
         const action = process.getAction()
-        // console.log(mPolicyToString(mStates, process.getPolicy(), process.getQFunction(), 2))
-        // console.log(prevQ && prevQ.equals(process.qFunction))
+
+        console.log(mPolicyToString(mStates, process.getPolicy(), process.getQFunction(), 5))
+
+        if (action && isEmergencyStop(action)) {
+            console.log(`${formatNumber(i)} -- ${curMState.h()} -- ${action.h()}`)
+            // TODO Finish up history in a way
+            break
+        }
 
         // prevQ = process.getQFunction()
         // ticToc.tic('done_computeAction')

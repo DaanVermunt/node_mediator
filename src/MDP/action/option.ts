@@ -1,4 +1,4 @@
-import { Action, ActionRes } from './action'
+import { Action, ActionRes, nullRes } from './action'
 import { State } from '../state/state'
 import { Policy } from '../process/policy'
 import { OptionName } from '../../mediator-model/action/m-options'
@@ -16,35 +16,29 @@ class Option implements Action {
 
     perform(from: State): ActionRes {
         if (!this.inInitSubset(from, this.name)) {
-            return {
-                to: from,
-                reward: Number.NEGATIVE_INFINITY,
-                numberOfSteps: 1,
-            }
+            return nullRes(from)
         }
 
         let doneAttemps = 0
+        let hasPassedIllegal = false
         let rewardsSum = 0
 
         let curState = from
         let nextState = from
 
-        while (!this.finalizeTransition(curState, nextState) && this.attempts >= doneAttemps) {
+        while (!this.finalizeTransition(curState, nextState) && this.attempts >= doneAttemps && !hasPassedIllegal) {
             curState = nextState
 
             const action: Action | undefined = this.policy(curState)
             if (!action) {
-                return {
-                    to: from,
-                    reward: Number.NEGATIVE_INFINITY,
-                    numberOfSteps: 1,
-                }
+                return nullRes(from)
             }
             const res = action.perform(curState)
 
             rewardsSum = rewardsSum + res.reward - this.cost
             doneAttemps =  doneAttemps + res.numberOfSteps
             nextState = res.to
+            hasPassedIllegal = hasPassedIllegal || res.hasPassedIllegal
 
         }
 
@@ -52,6 +46,7 @@ class Option implements Action {
             to: nextState,
             reward: rewardsSum,
             numberOfSteps: doneAttemps,
+            hasPassedIllegal
         }
     }
 

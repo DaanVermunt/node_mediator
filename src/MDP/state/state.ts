@@ -5,4 +5,5 @@ export type StateHash = string
 export interface State extends Stringable {
     reward(): number
     h(): StateHash
+    isSafe(): boolean
 }

@@ -15,7 +15,7 @@ interface Scenario {
     description: string
 }
 
-const tap = <T>(f: (x: T) => T) => {
+export const tap = <T>(f: (x: T) => T) => {
     return (x: T) => {
         f(x)
         return x

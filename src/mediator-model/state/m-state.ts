@@ -41,6 +41,18 @@ export const toMState = (state: State): (MState | null) => {
     return null
 }
 
+export const isMState = (state: State): state is MState => {
+    const res = state as MState
+    if (
+        res.autonomousConfidence !== undefined &&
+        res.humanConfidence !== undefined &&
+        res.loa !== undefined
+    ) {
+        return true
+    }
+    return false
+}
+
 export const r = {
     top: 110,
     high: 100,
@@ -74,6 +86,27 @@ class MState implements State {
     }
 
     isSafe(): boolean {
+        if (this.time === -1) {
+            return true
+        }
+
+        if (this.autonomousConfidence < this.loa) {
+            return false
+        }
+
+        switch (this.loa) {
+            case LoA.LoA0:
+                return this.humanConfidence === HumanConfidence.HC3
+            case LoA.LoA1:
+                return this.humanConfidence >= HumanConfidence.HC2
+            case LoA.LoA2:
+                return this.humanConfidence >= HumanConfidence.HC1
+            case LoA.LoA3:
+                return true
+        }
+    }
+
+    isSafePrivate(): boolean {
         if (this.autonomousConfidence < this.loa) {
             return false
         }
@@ -95,7 +128,7 @@ class MState implements State {
             return r.zero
         }
 
-        return this.isSafe() ? loaR[this.loa] : r.bad
+        return this.isSafePrivate() ? loaR[this.loa] : r.bad
     }
 
     toString(): string {

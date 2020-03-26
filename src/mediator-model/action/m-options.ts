@@ -4,6 +4,7 @@ import { getMPrimitives, PrimitiveName } from './m-primitives'
 import { SimulationState } from '../../simulation/simulation-state'
 import { State } from '../../MDP/state/state'
 import { Action } from '../../MDP/action/action'
+import { Policy } from '../../MDP/process/policy'
 
 export type OptionName = 'passive' | 'upgrade' | 'downgrade' | 'wake_up'
 export const optionNames = ['passive' , 'upgrade' , 'downgrade' , 'wake_up']
@@ -91,3 +92,4 @@ export const getMOptions = (mStates: MState[], simState: SimulationState, nrStep
 
     return [passiveOption, upgradeOption, downgradeOption, wakeUpOption]
 }
+
