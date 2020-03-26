@@ -10,8 +10,8 @@ export interface ActionRes {
 
 export const nullRes: (from: State) => ActionRes = from => ({
     to: from,
-    // reward: Number.NEGATIVE_INFINITY,
-    reward: -10000,
+    reward: Number.NEGATIVE_INFINITY,
+    // reward: -10000,
     numberOfSteps: 1,
     hasPassedIllegal: true,
 })

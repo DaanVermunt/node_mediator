@@ -57,13 +57,6 @@ class QFunction {
 
             const res = actQ === ILLEGAL || maxQ > actQ ? maxAction : action
 
-            if (Math.random() < .0005 && actQ === ILLEGAL) {
-                console.log('---------------------------------in getMaxAction()--------------------------------------')
-                console.log(maxQ, maxAction.h())
-                console.log(actQ, action.h())
-                console.log(res.name)
-            }
-
             return res
         })
     }
