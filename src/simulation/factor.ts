@@ -1,6 +1,3 @@
-import { normal } from 'random'
-import { ActionImpact } from './actionImpact'
-
 export type FactorHash = string
 
 export type DependenceType = 'exogenous' | 'endogenous'
@@ -144,7 +141,6 @@ class Factor {
     }
 
     getPrediction(from: number, n: number): Prediction[] {
-        // TODO Give worst and best case as well
         const pred: Prediction[] = []
 
         for (let i = from; i < from + n; i++) {

@@ -12,4 +12,12 @@ argparser.addArgument(
     },
 )
 
-// export default argparser
+argparser.addArgument(
+    ['-o'],
+    {
+        help: 'path too output folder',
+        type: 'string',
+        action: 'store',
+        dest: 'outputFolder',
+    },
+)

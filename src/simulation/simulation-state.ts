@@ -5,7 +5,6 @@ import { ActionImpact } from './actionImpact'
 export interface SimulationState {
     t: number
     inOption: boolean
-    // TODO TD* uncertainty
     TTD: Record<LoA, number>
     TTA: Record<LoA, number>
     context: Context

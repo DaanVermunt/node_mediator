@@ -3,11 +3,11 @@ import Simulation, { getACfromSimState, getHCfromSimState } from './simulation/s
 import Process from './MDP/process/process'
 import { AutonomousConfidence, fromSimState, HumanConfidence, LoA } from './mediator-model/state/m-state'
 import { createMStates } from './helper/model/init-states'
-import { getMOptions, isOption, OptionName } from './mediator-model/action/m-options'
-import { formatNumber, TimeTos } from './output/console-out'
+import { getMOptions, isOption } from './mediator-model/action/m-options'
+import { TimeTos } from './output/console-out'
 import { writeContextHistory, writeStateActionHistory, writeTTHistory } from './output/write-file'
-import { actionToArrow, mPolicyToString } from './MDP/process/policy'
 import { isEmergencyStop } from './MDP/action/action'
+import * as fs from 'fs'
 
 const arg = argparser.parseArgs()
 const d = new Date()
@@ -20,8 +20,13 @@ export interface StateActionHistoryItem {
     hc: HumanConfidence
 }
 
+function finishHistoryAfterStop(simulation: Simulation, timeLeft: number) {
+    for (let j = 0; j < timeLeft; j++) {
+        simulation.performAction()
+    }
+}
+
 function mainLoop() {
-    console.time('init')
     // Init world
     const sim = new Simulation(arg.inputFile)
     const TTHistory: TimeTos[] = []
@@ -29,21 +34,14 @@ function mainLoop() {
 
     const nrSteps = sim.totalT || 2
 
-    // const horizon = sim.horizon || 20
-    const horizon = 20 // TODO get from scenario
+    const horizon = sim.horizon || 20
     const mStates = createMStates(horizon)
-    // let prevQ: QFunction | boolean = false
 
     let simState = sim.getSimState(horizon)
 
-    console.timeEnd('init')
     for (let i = 0; i < nrSteps; i++) {
-        // Get SimState
-        // ticToc.tic(`${i} / ${nrSteps}`)
-
-        // Compute Transprobs
+        // Compute Trans probs
         const prims = getMOptions(mStates, simState, horizon)
-        // ticToc.tic('done_getOptions')
 
         // Compute MDPState
         const curMState = fromSimState(simState)
@@ -55,13 +53,18 @@ function mainLoop() {
         // console.log(mPolicyToString(mStates, process.getPolicy(), process.getQFunction(), 5))
 
         if (action && isEmergencyStop(action)) {
-            console.log(`${formatNumber(i)} -- ${curMState.h()} -- ${action.h()}`)
-            // TODO Finish up history in a way
+            const nullLoARecord = { [LoA.LoA0]: 0, [LoA.LoA1]: 0, [LoA.LoA2]: 0, [LoA.LoA3]: 0 }
+            TTHistory.push({ TTA: nullLoARecord, TTD: nullLoARecord })
+            stateActionHistory.push({
+                action: 'EMERGENCY_STOP',
+                loa: 0,
+                ac: 0,
+                hc: 0,
+            })
+
+            finishHistoryAfterStop(sim, nrSteps - i)
             break
         }
-
-        // prevQ = process.getQFunction()
-        // ticToc.tic('done_computeAction')
 
         if (isOption(action)) {
             sim.performOption(action)
@@ -72,10 +75,8 @@ function mainLoop() {
 
         simState = sim.getSimState()
 
-        console.log(`${formatNumber(i)} -- ${curMState.h()} -- ${action ? actionToArrow(action.h() as OptionName) : '[]'}`)
+        // console.log(`${formatNumber(i)} -- ${curMState.h()} -- ${action ? actionToArrow(action.h() as OptionName) : '[]'}`)
 
-        // writeFactors(sim.context, sim.t)
-        // writeTTs({ TTA: simState.TTA, TTD: simState.TTD })
         TTHistory.push({ TTA: simState.TTA, TTD: simState.TTD })
         stateActionHistory.push({
             action: action ? action.name : 'undefined',
@@ -85,9 +86,10 @@ function mainLoop() {
         })
     }
 
-    writeTTHistory(TTHistory)
-    writeStateActionHistory(stateActionHistory)
-    writeContextHistory(sim.getSimState(), nrSteps)
+    fs.mkdirSync(`./data/out/${arg.outputFolder}`, { recursive: true })
+    writeTTHistory(TTHistory, arg.outputFolder)
+    writeStateActionHistory(stateActionHistory, arg.outputFolder)
+    writeContextHistory(sim.getSimState(), nrSteps, arg.outputFolder)
     console.log(new Date())
 }
 

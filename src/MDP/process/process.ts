@@ -26,7 +26,6 @@ class Process {
     private readonly problem: Problem
     private solver: Solver
     private qFunction?: QFunction
-    // TODO Maybe change this to policy function
     public policy?: PolicyVector
 
     getAction(): (Action | undefined) {

@@ -1,0 +1,79 @@
+{
+  "action_effects": [
+  ],
+  "totalT": 100,
+  "description": "Sim 4, all is well till T40 we might hit the shit",
+  "startLoa": 0,
+  "horizon": 20,
+  "factors": [
+    {
+      "name": "D_LoA0",
+      "value": "${HC} > .8 ? 1 : 0",
+      "type": "modeled",
+      "dependence": "endogenous"
+    },
+    {
+      "name": "D_LoA1",
+      "value": "${HC} > .6 ? 1 : 0",
+      "type": "modeled",
+      "dependence": "endogenous"
+    },
+    {
+      "name": "D_LoA2",
+      "value": "${HC} > .2 ? 1 : 0",
+      "type": "modeled",
+      "dependence": "endogenous"
+    },
+    {
+      "name": "D_LoA3",
+      "value": "${HC} > .1 ? 1 : 0",
+      "type": "modeled",
+      "dependence": "endogenous"
+    },
+
+    {
+      "name": "A_LoA0",
+      "value": "${AC} > 0 ? 1 : 0",
+      "type": "modeled",
+      "dependence": "endogenous"
+    },
+    {
+      "name": "A_LoA1",
+      "value": "${AC} > .5 ? 1 : 0",
+      "type": "modeled",
+      "dependence": "endogenous"
+    },
+    {
+      "name": "A_LoA2",
+      "value": "${AC} > .7 ? 1 : 0",
+      "type": "modeled",
+      "dependence": "endogenous"
+    },
+    {
+      "name": "A_LoA3",
+      "value": "${AC} > .9 ? 1 : 0",
+      "type": "modeled",
+      "dependence": "endogenous"
+    },
+
+    {
+      "name": "HC",
+      "value": "${_t} < 40 ? 1 : ${sleepiness}",
+      "type": "modeled",
+      "dependence": "endogenous"
+    },
+    {
+      "name": "sleepiness",
+      "value": "true ? 1 : 0",
+      "type": "modeled",
+      "dependence": "exogenous",
+      "error": 0.3
+    },
+    {
+      "name": "AC",
+      "value": "false ? 1 : 0",
+      "type": "modeled",
+      "dependence": "exogenous"
+    }
+  ]
+}

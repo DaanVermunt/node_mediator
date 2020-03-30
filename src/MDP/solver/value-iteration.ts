@@ -30,9 +30,7 @@ class ValueIteration implements Solver {
 
     solve(p: Problem): QFunction {
         const q = new QFunction(p)
-        for (let i = 0; i < 50; i++) {
-            // TODO Uncomment
-            // for (let i = 0; i < this.n; i++) {
+        for (let i = 0; i < this.n; i++) {
             Object.values(p.states).forEach(state => {
                 p.actions.forEach(action => {
                     const qCurrent = q.get(state.h(), action.h())

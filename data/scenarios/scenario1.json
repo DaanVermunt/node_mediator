@@ -10,6 +10,7 @@
   ],
   "totalT": 120,
   "description": "Sim 1 after the presentation given by Bram Bakker on Feb 3 2020, we will try to invoke most required actions of the mediator.",
+  "horizon": 20,
   "factors": [
     {
       "name": "D_LoA0",

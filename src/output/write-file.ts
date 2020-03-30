@@ -4,7 +4,7 @@ import { LoA } from '../mediator-model/state/m-state'
 import { TimeTos } from './console-out'
 import { StateActionHistoryItem } from '../main'
 
-export function writeContextHistory(simState: SimulationState, to: number) {
+export function writeContextHistory(simState: SimulationState, to: number, outputFolder: string) {
     const context = simState.context
 
     // HEADER
@@ -23,10 +23,10 @@ export function writeContextHistory(simState: SimulationState, to: number) {
         resString += `\n`
     }
 
-    fs.writeFileSync('./data/out/context.csv', resString, { encoding: 'utf-8' })
+    fs.writeFileSync(`./data/out/${outputFolder}/context.csv`, resString, { encoding: 'utf-8' })
 }
 
-export function writeStateActionHistory(stateActionHistory: StateActionHistoryItem[]) {
+export function writeStateActionHistory(stateActionHistory: StateActionHistoryItem[], outputFolder: string) {
     if (stateActionHistory.length === 0) {
         return
     }
@@ -48,10 +48,10 @@ export function writeStateActionHistory(stateActionHistory: StateActionHistoryIt
         resString += `\n`
     })
 
-    fs.writeFileSync('./data/out/StateActionHistory.csv', resString, { encoding: 'utf-8' })
+    fs.writeFileSync(`./data/out/${outputFolder}/StateActionHistory.csv`, resString, { encoding: 'utf-8' })
 }
 
-export function writeTTHistory(TThistory: TimeTos[]) {
+export function writeTTHistory(TThistory: TimeTos[], outputFolder: string) {
     let resString = 't'
     const LoAArray: LoA[] = Object.values(LoA)
         .filter(loa => typeof loa !== 'string') as LoA[]
@@ -72,5 +72,5 @@ export function writeTTHistory(TThistory: TimeTos[]) {
         resString += `\n`
     })
 
-    fs.writeFileSync('./data/out/TTs.csv', resString, { encoding: 'utf-8' })
+    fs.writeFileSync(`./data/out/${outputFolder}/TTs.csv`, resString, { encoding: 'utf-8' })
 }

@@ -1,7 +1,6 @@
 import Factor, { FactorHash, FactorInput } from './factor'
 import { Action } from '../MDP/action/action'
 import { LoA } from '../mediator-model/state/m-state'
-import { OptionName } from '../mediator-model/action/m-options'
 import { PrimitiveName } from '../mediator-model/action/m-primitives'
 import { ActionImpact } from './actionImpact'
 

@@ -13,6 +13,7 @@ interface Scenario {
     totalT?: number
     startLoa?: LoA
     description: string
+    horizon?: number
 }
 
 export const tap = <T>(f: (x: T) => T) => {
@@ -60,7 +61,7 @@ export const getACfromSimState = (simState: SimulationState, tDelta: number = 0)
 }
 
 /*
-TODO: Here we should be able to play with safety options i.e. how sure should we be.
+      Here we should be able to play with safety options i.e. how sure should we be.
       This can even be more extreme where we define this per certainty level; sure, expected, worse case etc.
     */
 export const predictionIsSafe = (pred: Prediction): boolean => pred.value > .8
@@ -80,6 +81,7 @@ class Simulation {
     context: Context
     curLoA: LoA
     impacts: ActionImpact[]
+    horizon: number
 
     constructor(
         private readonly scenarioFilePath: string,
@@ -94,6 +96,7 @@ class Simulation {
         this.curLoA = scenario.startLoa || LoA.LoA0
         // Create first SimState
         this.impacts = scenario.action_effects ? this.parseImpacts(scenario.action_effects) : []
+        this.horizon = scenario.horizon || 20
     }
 
     performAction(action?: Action): void {
