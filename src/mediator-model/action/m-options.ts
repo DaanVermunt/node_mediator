@@ -4,7 +4,6 @@ import { getMPrimitives, PrimitiveName } from './m-primitives'
 import { SimulationState } from '../../simulation/simulation-state'
 import { State } from '../../MDP/state/state'
 import { Action } from '../../MDP/action/action'
-import { Policy } from '../../MDP/process/policy'
 
 export type OptionName = 'passive' | 'upgrade' | 'downgrade' | 'wake_up'
 export const optionNames = ['passive' , 'upgrade' , 'downgrade' , 'wake_up']
@@ -22,7 +21,7 @@ const getIsInInitSubset = () => (st: State, option: OptionName): boolean => {
         case 'passive':
             return true
         case 'wake_up':
-            return state.humanConfidence !== HumanConfidence.HC3
+            return true
         case 'upgrade':
             return state.loa !== LoA.LoA3
         case 'downgrade':
@@ -86,10 +85,11 @@ export const getMOptions = (mStates: MState[], simState: SimulationState, nrStep
         getIsInInitSubset(),
         getPolicyFunction('wake_up', primitives),
         1,
-        (from: State, to: State) => isMState(from) && isMState(to) ?  from.humanConfidence + 1 === to.humanConfidence : logWrongType(true),
+        (from: State, to: State) => isMState(from) && isMState(to)
+            ?  from.humanConfidence + 1 === to.humanConfidence
+            : logWrongType(true),
         'wake_up',
     )
 
     return [passiveOption, upgradeOption, downgradeOption, wakeUpOption]
 }
-

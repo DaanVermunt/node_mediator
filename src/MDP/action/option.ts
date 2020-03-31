@@ -46,7 +46,7 @@ class Option implements Action {
             to: nextState,
             reward: rewardsSum,
             numberOfSteps: doneAttemps,
-            hasPassedIllegal
+            hasPassedIllegal,
         }
     }
 

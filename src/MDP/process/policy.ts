@@ -1,4 +1,4 @@
-import { Action, emergencyStop } from '../action/action'
+import { Action } from '../action/action'
 import { State, StateHash } from '../state/state'
 import QFunction, { formatQValue } from '../solver/q-function'
 import { sortMStates } from '../../helper/model/sort'
@@ -37,11 +37,12 @@ export const mPolicyToString = (
     policy: PolicyVector,
     qFunction: QFunction,
     maxHorizon: number = Number.POSITIVE_INFINITY,
+    ac: AutonomousConfidence = AutonomousConfidence.AC3,
 ): string => {
     states = states.reduce((unique, state) => {
         const duplicate = unique.find(st => st.loa === state.loa && st.time === state.time && st.humanConfidence === state.humanConfidence)
 
-        if (duplicate || state.autonomousConfidence !== AutonomousConfidence.AC3) {
+        if (duplicate || state.autonomousConfidence !== ac) {
             return unique
         }
         return [...unique, state]

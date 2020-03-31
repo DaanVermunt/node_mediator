@@ -1,6 +1,6 @@
 import { State } from '../../MDP/state/state'
 import { SimulationState } from '../../simulation/simulation-state'
-import { getACfromSimState, getHCfromSimState } from '../../simulation/simulation'
+import { getACfromSimState, getHCfromSimState, rewardSystem } from '../../simulation/simulation'
 
 export enum HumanConfidence {
     HC0,
@@ -62,15 +62,28 @@ export const r = {
     bad: -100,
 }
 
-export const transCost = 10
+export const transCost = rewardSystem === 'min_transitions' ? 100 : 10
 export const wakeUpCost = 10
 
-export const loaR = {
-    [LoA.LoA0]: r.low,
-    [LoA.LoA1]: r.medium,
-    [LoA.LoA2]: r.high,
-    [LoA.LoA3]: r.top,
-}
+export const loaR = rewardSystem === 'min_automation' ? {
+    [LoA.LoA0]: r.top,
+    [LoA.LoA1]: r.high,
+    [LoA.LoA2]: r.medium,
+    [LoA.LoA3]: r.low,
+} : rewardSystem === 'min_transitions' ?
+    {
+        [LoA.LoA0]: r.medium,
+        [LoA.LoA1]: r.medium,
+        [LoA.LoA2]: r.medium,
+        [LoA.LoA3]: r.medium,
+    }
+    :
+    {
+        [LoA.LoA0]: r.low,
+        [LoA.LoA1]: r.medium,
+        [LoA.LoA2]: r.high,
+        [LoA.LoA3]: r.top,
+    }
 
 class MState implements State {
     constructor(

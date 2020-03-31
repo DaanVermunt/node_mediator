@@ -7,6 +7,10 @@ import { FactorInput, Prediction } from './factor'
 import { ActionImpact, ActionImpactInput } from './actionImpact'
 import Option from '../MDP/action/option'
 
+export type RewardSystem = 'max_automation' | 'min_automation' | 'min_transitions'
+
+export let rewardSystem: RewardSystem = 'max_automation'
+
 interface Scenario {
     action_effects: ActionImpactInput[]
     factors: FactorInput[]
@@ -14,6 +18,7 @@ interface Scenario {
     startLoa?: LoA
     description: string
     horizon?: number
+    rewardSystem?: RewardSystem
 }
 
 export const tap = <T>(f: (x: T) => T) => {
@@ -97,6 +102,7 @@ class Simulation {
         // Create first SimState
         this.impacts = scenario.action_effects ? this.parseImpacts(scenario.action_effects) : []
         this.horizon = scenario.horizon || 20
+        rewardSystem = scenario.rewardSystem || 'max_automation'
     }
 
     performAction(action?: Action): void {

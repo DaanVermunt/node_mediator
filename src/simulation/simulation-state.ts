@@ -1,4 +1,4 @@
-import { AutonomousConfidence, HumanConfidence, LoA } from '../mediator-model/state/m-state'
+import { LoA } from '../mediator-model/state/m-state'
 import Context from './context'
 import { ActionImpact } from './actionImpact'
 

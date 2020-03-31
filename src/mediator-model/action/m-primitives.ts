@@ -55,11 +55,9 @@ export const getTransFunction = (simState: SimulationState, maxTime: number) => 
                 break
 
             case 'hc_up':
-                if (from.humanConfidence < HumanConfidence.HC3) {
-
+                if (from.humanConfidence <= HumanConfidence.HC3) {
                     const nextState = new MState(newHC, from.loa, newAC, from.time + 1)
                     trans[nextState.h()] = trans[nextState.h()] ? trans[nextState.h()] + 1 : 1
-
                 }
                 break
 

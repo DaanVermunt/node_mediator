@@ -3,13 +3,13 @@
     {
       "primitive_name": "hc_up",
       "name": "alarmAction",
-      "on_factor": "sleepiness",
-      "diff": -0.2,
+      "on_factor": "distraction",
+      "diff": -0.5,
       "std": 0.0
     }
   ],
-  "totalT": 120,
-  "description": "Sim 1 after the presentation given by Bram Bakker on Feb 3 2020, we will try to invoke most required actions of the mediator.",
+  "totalT": 51,
+  "description": "Sim 5, we have two types of Human Confidence degration, one we can solve and one we cannot",
   "horizon": 20,
   "rewardSystem": "min_automation",
   "factors": [
@@ -65,46 +65,30 @@
 
     {
       "name": "HC",
-      "value": "1 - .5 * ${sleepiness} - .5 * ${distraction}",
+      "value": "1 - .5 * ${distraction} - .5 * ${badRoad}",
       "type": "modeled",
       "dependence": "endogenous"
     },
     {
       "name": "AC",
-      "value": "${road_condition} + ${traffic_predictability}",
+      "value": "(9 <= ${_t} && ${_t} < 18) || (39 <= ${_t} && ${_t} < 45) ? .8 : 0",
       "type": "modeled",
       "dependence": "endogenous"
     },
 
     {
-      "name": "sleepiness",
-      "value": "${-1} * 1.01",
-      "start_value": 0.01,
+      "name": "badRoad",
+      "value": "${_t} === 42 ? .4 : ${-1}",
+      "start_value": 0.00,
       "type": "modeled",
-      "dependence": "exogenous",
-      "error": 0.5
+      "dependence": "exogenous"
     },
     {
       "name": "distraction",
-      "value": "(9 < ${_t} && ${_t} < 12) || (24 < ${_t} && ${_t} < 27) || (41 < ${_t} && ${_t} < 46) || (66 < ${_t} && ${_t} < 75) ? 1 : 0",
+      "value": "${_t} === 12 ? .4 : ${-1}",
+      "start_value": 0.00,
       "type": "modeled",
-      "dependence": "exogenous",
-      "error": 0.5
-    },
-
-    {
-      "name": "road_condition",
-      "value": "(6 < ${_t} && ${_t} < 15) || (21 < ${_t} && ${_t} < 33) || (39 < ${_t} && ${_t} < 48) || (54 < ${_t} && ${_t} < 84)  || (93 < ${_t} && ${_t} < 99) || (105 < ${_t} && ${_t} < 114) ? .6 : 0",
-      "type": "modeled",
-      "dependence": "exogenous",
-      "error": 0.5
-    },
-    {
-      "name": "traffic_predictability",
-      "value": "(6 < ${_t} && ${_t} < 15) || (21 < ${_t} && ${_t} < 33) || (54 < ${_t} && ${_t} < 84)  || (105 < ${_t} && ${_t} < 114) ? .4 : 0",
-      "type": "modeled",
-      "dependence": "exogenous",
-      "error": 0.5
+      "dependence": "exogenous"
     }
   ]
 }

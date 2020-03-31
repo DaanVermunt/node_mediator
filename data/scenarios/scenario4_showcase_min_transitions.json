@@ -1,10 +1,10 @@
 {
   "action_effects": [
   ],
-  "totalT": 100,
-  "description": "Sim 4, all is well till T40 we might hit the shit",
+  "totalT": 30,
+  "description": "Sim 4, showcases min transactions",
   "startLoa": 0,
-  "horizon": 20,
+  "rewardSystem": "min_transitions",
   "factors": [
     {
       "name": "D_LoA0",
@@ -58,22 +58,42 @@
 
     {
       "name": "HC",
-      "value": "${_t} < 40 ? 1 : ${sleepiness}",
+      "value": "1 - ${dip9} - ${dip12}",
       "type": "modeled",
-      "dependence": "endogenous"
-    },
-    {
-      "name": "sleepiness",
-      "value": "true ? 1 : 0",
-      "type": "modeled",
-      "dependence": "exogenous",
-      "error": 0.3
+      "dependence": "exogenous"
     },
     {
       "name": "AC",
-      "value": "false ? 1 : 0",
+      "value": ".8 - ${dip18} - ${dip21}",
+      "type": "modeled",
+      "dependence": "exogenous"
+    },
+
+    {
+      "name": "dip9",
+      "value": "9 <= ${_t} && ${_t} < 12 ? .7 : 0",
+      "type": "modeled",
+      "dependence": "exogenous"
+    },
+    {
+      "name": "dip12",
+      "value": "12 <= ${_t} && ${_t} < 15 ? .3 : 0",
+      "type": "modeled",
+      "dependence": "exogenous"
+    },
+
+    {
+      "name": "dip18",
+      "value": "18 <= ${_t} && ${_t} < 21 ? .2 : 0",
+      "type": "modeled",
+      "dependence": "exogenous"
+    },
+    {
+      "name": "dip21",
+      "value": "21 <= ${_t} && ${_t} < 24 ? .5 : 0",
       "type": "modeled",
       "dependence": "exogenous"
     }
+
   ]
 }

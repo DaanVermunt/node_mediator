@@ -1,9 +1,10 @@
 {
   "action_effects": [
   ],
-  "totalT": 100,
-  "description": "Sim 2, all is well all the time",
+  "totalT": 30,
+  "description": "Sim 2, showcases max automation",
   "startLoa": 0,
+  "rewardSystem": "max_automation",
   "factors": [
     {
       "name": "D_LoA0",
@@ -57,15 +58,42 @@
 
     {
       "name": "HC",
-      "value": "true ? 1 : 0",
+      "value": "1 - ${dip9} - ${dip12}",
       "type": "modeled",
       "dependence": "exogenous"
     },
     {
       "name": "AC",
-      "value": "false ? 1 : 0",
+      "value": ".8 - ${dip18} - ${dip21}",
+      "type": "modeled",
+      "dependence": "exogenous"
+    },
+
+    {
+      "name": "dip9",
+      "value": "9 <= ${_t} && ${_t} < 12 ? .7 : 0",
+      "type": "modeled",
+      "dependence": "exogenous"
+    },
+    {
+      "name": "dip12",
+      "value": "12 <= ${_t} && ${_t} < 15 ? .3 : 0",
+      "type": "modeled",
+      "dependence": "exogenous"
+    },
+
+    {
+      "name": "dip18",
+      "value": "18 <= ${_t} && ${_t} < 21 ? .2 : 0",
+      "type": "modeled",
+      "dependence": "exogenous"
+    },
+    {
+      "name": "dip21",
+      "value": "21 <= ${_t} && ${_t} < 24 ? .5 : 0",
       "type": "modeled",
       "dependence": "exogenous"
     }
+
   ]
 }
