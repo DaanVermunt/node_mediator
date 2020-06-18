@@ -85,7 +85,7 @@ function mainLoop() {
             console.log(`${formatNumber(i)} / ${formatNumber(nrSteps)} -- ${curMState.h()} -- ${action ? actionToArrow(action.h() as OptionName) : '[]'} -- ${curMState.isSafe() ? 'Y' : 'N'}`)
         }
 
-        if ( i === 8 ) {
+        if ( false ) {
             const qFunction = process.getQFunction()
             const q = qFunction.qValues
             Object.keys(q).sort(sortStateHash).forEach(st => {
@@ -95,11 +95,9 @@ function mainLoop() {
                     console.log(`${st} - ${state.isSafe() ? 'Y' : 'N'} - ${val === 'illegal' ? 'XX' : Math.round(val)}`)
                 }
             })
-
-            // console.log(`${formatNumber(i)} / ${formatNumber(nrSteps)} -- ${curMState.h()} -- ${action ? actionToArrow(action.h() as OptionName) : '[]'} -- ${curMState.isSafe() ? 'Y' : 'N'}`)
         }
 
-        if (false) {
+        if ( false ) {
         // if ( (9 <= i  && i <= 11) || i === 1) {
            const q = process.getQFunction().qValues
            Object.keys(q).filter(st => {
