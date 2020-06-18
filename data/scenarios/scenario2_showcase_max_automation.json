@@ -1,9 +1,7 @@
 {
-  "action_effects": [
-  ],
-  "totalT": 30,
   "description": "Sim 2, showcases max automation",
   "startLoa": 0,
+  "totalT": 30,
   "rewardSystem": "max_automation",
   "factors": [
     {
@@ -95,5 +93,7 @@
       "dependence": "exogenous"
     }
 
+  ],
+  "actionEffects": [
   ]
 }

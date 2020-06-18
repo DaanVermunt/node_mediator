@@ -50,21 +50,21 @@ export const getTransFunction = (simState: SimulationState, maxTime: number) => 
 
         switch (action) {
             case 'do_nothing':
-                const stateTo = new MState(newHC, from.loa, newAC, from.time + 1)
+                const stateTo = new MState(newHC, from.loa, newAC, from.time + 1, from.rewardSystem)
                 trans[stateTo.h()] = trans[stateTo.h()] ? trans[stateTo.h()] + 1 : 1
                 break
 
             case 'hc_up':
                 if (from.humanConfidence <= HumanConfidence.HC3) {
-                    const nextState = new MState(newHC, from.loa, newAC, from.time + 1)
+                    const nextState = new MState(newHC, from.loa, newAC, from.time + 1, from.rewardSystem)
                     trans[nextState.h()] = trans[nextState.h()] ? trans[nextState.h()] + 1 : 1
                 }
                 break
 
             case 'loa_down':
                 if (from.loa > LoA.LoA0) {
-                    const goalState = new MState(newHC, from.loa - 1, newAC, from.time + 1)
-                    const failState = new MState(newHC, from.loa, newAC, from.time + 1)
+                    const goalState = new MState(newHC, from.loa - 1, newAC, from.time + 1, from.rewardSystem)
+                    const failState = new MState(newHC, from.loa, newAC, from.time + 1, from.rewardSystem)
 
                     trans[goalState.h()] = trans[goalState.h()] ? trans[goalState.h()] + 1 : 1
                     trans[failState.h()] = trans[failState.h()] ? trans[failState.h()] + 0 : 0
@@ -73,8 +73,8 @@ export const getTransFunction = (simState: SimulationState, maxTime: number) => 
 
             case 'loa_up':
                 if (from.loa < LoA.LoA3) {
-                    const goalState = new MState(newHC, from.loa + 1, newAC, from.time + 1)
-                    const failState = new MState(newHC, from.loa, newAC, from.time + 1)
+                    const goalState = new MState(newHC, from.loa + 1, newAC, from.time + 1, from.rewardSystem)
+                    const failState = new MState(newHC, from.loa, newAC, from.time + 1, from.rewardSystem)
 
                     trans[goalState.h()] = trans[goalState.h()] ? trans[goalState.h()] + 1 : 1
                     trans[failState.h()] = trans[failState.h()] ? trans[failState.h()] + 0 : 0
@@ -114,14 +114,14 @@ export const getMPrimitives = (mStates: MState[], simState: SimulationState, nrS
             // loaUpTrans,
             transFunction,
             stateList,
-            transCost,
+            transCost(simState.rewardSystem),
         ),
         loa_down: new Primitive(
             'loa_down',
             // loaDownTrans,
             transFunction,
             stateList,
-            transCost,
+            transCost(simState.rewardSystem),
         ),
         hc_up: new Primitive(
             'hc_up',

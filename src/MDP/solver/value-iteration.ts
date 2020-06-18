@@ -17,10 +17,6 @@ class ValueIteration implements Solver {
         const { to, reward, numberOfSteps, hasPassedIllegal } = action.perform(state)
         const qMaxVal = qMax(to.h())
 
-        if (action.name === 'wake_up' && !to.isSafe() && !hasPassedIllegal && isNumericQValue(qMaxVal) && isNumericQValue(qCurrent)) {
-            console.log('WTF')
-        }
-
         if (isMState(state) && state.time < 0) {
             return 0
         }

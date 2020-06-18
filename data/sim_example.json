@@ -1,5 +1,5 @@
 {
-  "action_effects": [
+  "actionEffects": [
     {
       "primitive_name": "hc_up",
       "on_factor": "D_LoA*",

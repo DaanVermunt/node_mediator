@@ -3,23 +3,10 @@ import { SimulationState } from './simulation-state'
 import MState, { AutonomousConfidence, fromSimState, HumanConfidence, LoA } from '../mediator-model/state/m-state'
 import Context from './context'
 import { readFileSync } from 'fs'
-import { FactorInput, Prediction } from './factor'
+import { Prediction } from './factor'
 import { ActionImpact, ActionImpactInput } from './actionImpact'
 import Option from '../MDP/action/option'
-
-export type RewardSystem = 'max_automation' | 'min_automation' | 'min_transitions'
-
-export let rewardSystem: RewardSystem = 'max_automation'
-
-interface Scenario {
-    action_effects: ActionImpactInput[]
-    factors: FactorInput[]
-    totalT?: number
-    startLoa?: LoA
-    description: string
-    horizon?: number
-    rewardSystem?: RewardSystem
-}
+import { RewardSystem, Scenario } from './scenario'
 
 export const tap = <T>(f: (x: T) => T) => {
     return (x: T) => {
@@ -82,11 +69,12 @@ export const getFirstSafeAt = (preds: Prediction[]): number => {
 class Simulation {
 
     t: number = 0
-    totalT?: number
+    totalT: number
     context: Context
     curLoA: LoA
     impacts: ActionImpact[]
     horizon: number
+    rewardSystem: RewardSystem
 
     constructor(
         private readonly scenarioFilePath: string,
@@ -100,9 +88,9 @@ class Simulation {
 
         this.curLoA = scenario.startLoa || LoA.LoA0
         // Create first SimState
-        this.impacts = scenario.action_effects ? this.parseImpacts(scenario.action_effects) : []
+        this.impacts = scenario.actionEffects ? this.parseImpacts(scenario.actionEffects) : []
         this.horizon = scenario.horizon || 20
-        rewardSystem = scenario.rewardSystem || 'max_automation'
+        this.rewardSystem = scenario.rewardSystem || 'max_automation'
     }
 
     performAction(action?: Action): void {
@@ -155,6 +143,7 @@ class Simulation {
             LoA: this.curLoA,
             impacts: this.impacts,
             futureScope,
+            rewardSystem: this.rewardSystem,
         }
     }
 

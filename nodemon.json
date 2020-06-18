@@ -2,5 +2,5 @@
   "watch": ["src"],
   "ignore": ["*.spec.ts"],
   "ext": "ts",
-  "exec": "ts-node ./src/main.ts -i ./data/scenarios/scenario5_showcase_impact.json -o scenario5"
+  "exec": "ts-node ./src/main.ts -i ./data/scenarios/scenario5_showcase_impact.json -o test"
 }

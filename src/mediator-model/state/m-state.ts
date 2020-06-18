@@ -1,6 +1,8 @@
-import { State } from '../../MDP/state/state'
+import { State, StateHash } from '../../MDP/state/state'
 import { SimulationState } from '../../simulation/simulation-state'
-import { getACfromSimState, getHCfromSimState, rewardSystem } from '../../simulation/simulation'
+import { getACfromSimState, getHCfromSimState } from '../../simulation/simulation'
+import { RewardSystem } from '../../simulation/scenario'
+import { getElement } from '../../helper/model/sort'
 
 export enum HumanConfidence {
     HC0,
@@ -43,14 +45,9 @@ export const toMState = (state: State): (MState | null) => {
 
 export const isMState = (state: State): state is MState => {
     const res = state as MState
-    if (
-        res.autonomousConfidence !== undefined &&
+    return res.autonomousConfidence !== undefined &&
         res.humanConfidence !== undefined &&
         res.loa !== undefined
-    ) {
-        return true
-    }
-    return false
 }
 
 export const r = {
@@ -62,15 +59,15 @@ export const r = {
     bad: -100,
 }
 
-export const transCost = rewardSystem === 'min_transitions' ? 100 : 10
+export const transCost = (rs: RewardSystem) => rs === 'min_transitions' ? 100 : 10
 export const wakeUpCost = 10
 
-export const loaR = rewardSystem === 'min_automation' ? {
+export const loaR = (rs: RewardSystem) => rs === 'min_automation' ? {
     [LoA.LoA0]: r.top,
     [LoA.LoA1]: r.high,
     [LoA.LoA2]: r.medium,
     [LoA.LoA3]: r.low,
-} : rewardSystem === 'min_transitions' ?
+} : rs === 'min_transitions' ?
     {
         [LoA.LoA0]: r.medium,
         [LoA.LoA1]: r.medium,
@@ -86,12 +83,17 @@ export const loaR = rewardSystem === 'min_automation' ? {
     }
 
 class MState implements State {
+
+    loaReward: Record<LoA, number>
+
     constructor(
         public readonly humanConfidence: HumanConfidence,
         public readonly loa: LoA,
         public readonly autonomousConfidence: AutonomousConfidence,
         public readonly time: number,
+        public readonly rewardSystem: RewardSystem = 'max_automation',
     ) {
+        this.loaReward = loaR(rewardSystem)
     }
 
     h(): string {
@@ -141,7 +143,7 @@ class MState implements State {
             return r.zero
         }
 
-        return this.isSafePrivate() ? loaR[this.loa] : r.bad
+        return this.isSafePrivate() ? this.loaReward[this.loa] : r.bad
     }
 
     toString(): string {
@@ -151,7 +153,17 @@ class MState implements State {
 }
 
 export const fromSimState = (simState: SimulationState): MState => {
-    return new MState(getHCfromSimState(simState), simState.LoA, getACfromSimState(simState), 0)
+    return new MState(getHCfromSimState(simState), simState.LoA, getACfromSimState(simState), 0, simState.rewardSystem)
+}
+
+export const fromStateHash = (st: StateHash): MState => {
+    const tString = st.substring(st.indexOf('t: ') + 3)
+    const t = parseInt(tString, 10)
+
+    const ac = getElement(st, 'ac:')
+    const hc = getElement(st, 'hc')
+    const loa = getElement(st, 'loa:')
+    return new MState(hc, loa, ac, t)
 }
 
 export const zeroState: MState = new MState(0, 0, 0, -1)
