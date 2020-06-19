@@ -3,7 +3,8 @@ import { Problem } from '../process/problem'
 import QFunction, { ILLEGAL, isNumericQValue, QValue } from './q-function'
 import { Action } from '../action/action'
 import { State, StateHash } from '../state/state'
-import { isMState } from '../../mediator-model/state/m-state'
+import { fromSimState, isMState } from '../../mediator-model/state/m-state'
+import { policyFromQFunc } from '../process/policy'
 
 class ValueIteration implements Solver {
     constructor(
@@ -28,7 +29,7 @@ class ValueIteration implements Solver {
         }
     }
 
-    solve(p: Problem): QFunction {
+    solve(p: Problem): Action {
         const q = new QFunction(p)
         for (let i = 0; i < this.n; i++) {
             Object.values(p.states).forEach(state => {
@@ -41,7 +42,9 @@ class ValueIteration implements Solver {
             })
         }
 
-        return q
+        const policy = policyFromQFunc(q)
+        const curState = fromSimState(p.simulation.getSimState(2))
+        return policy[curState.h()]
     }
 }
 

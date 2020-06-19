@@ -5,6 +5,7 @@ import { sortMStates } from '../../helper/model/sort'
 import Option from '../../MDP/action/option'
 import MState, { AutonomousConfidence, HumanConfidence, LoA } from '../../mediator-model/state/m-state'
 import { OptionName } from '../../mediator-model/action/m-options'
+import { Problem } from './problem'
 
 export type Policy = (state: State) => Action
 export type PolicyVector = Record<StateHash, Action>

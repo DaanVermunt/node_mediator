@@ -35,7 +35,7 @@ class Option implements Action {
             }
             const res = action.perform(curState)
 
-            rewardsSum = rewardsSum + res.reward - this.cost
+            rewardsSum = rewardsSum + res.reward
             doneAttemps =  doneAttemps + res.numberOfSteps
             nextState = res.to
             hasPassedIllegal = hasPassedIllegal || res.hasPassedIllegal
@@ -44,7 +44,7 @@ class Option implements Action {
 
         return {
             to: nextState,
-            reward: rewardsSum,
+            reward: rewardsSum - this.cost,
             numberOfSteps: doneAttemps,
             hasPassedIllegal,
         }

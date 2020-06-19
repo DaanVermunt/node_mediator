@@ -1,6 +1,6 @@
 import { Problem } from '../process/problem'
-import QFunction from './q-function'
+import { Action } from '../action/action'
 
 export interface Solver {
-    solve(p: Problem): QFunction
+    solve(p: Problem): Action
 }

@@ -7,11 +7,16 @@ import { ActionImpact } from './actionImpact'
 class Context {
     factors: Record<FactorHash, Factor>
 
-    constructor(factorList: FactorInput[], factors?: Record<FactorHash, Factor>) {
+    constructor(factorList: FactorInput[], factors?: Record<FactorHash, Factor>, clone?: boolean) {
         const boundGetFromFactor = this.getValueFromFactor.bind(this)
 
         if (factors) {
             this.factors = factors
+            if (clone) {
+                Object.keys(factors).forEach(key => {
+                    this.factors[key].getOtherFactor = boundGetFromFactor
+                })
+            }
         } else {
             this.factors = factorList.map(fi => {
                 return new Factor({ ...fi, getOtherFactor: boundGetFromFactor })

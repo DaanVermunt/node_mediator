@@ -3,10 +3,11 @@ import { SimulationState } from './simulation-state'
 import MState, { AutonomousConfidence, fromSimState, HumanConfidence, LoA } from '../mediator-model/state/m-state'
 import Context from './context'
 import { readFileSync } from 'fs'
-import { Prediction } from './factor'
+import Factor, { FactorHash, Prediction } from './factor'
 import { ActionImpact, ActionImpactInput } from './actionImpact'
 import Option from '../MDP/action/option'
 import { RewardSystem, Scenario } from './scenario'
+import { State } from '../MDP/state/state'
 
 export const tap = <T>(f: (x: T) => T) => {
     return (x: T) => {
@@ -87,7 +88,7 @@ class Simulation {
         this.context = new Context(scenario.factors)
 
         this.curLoA = scenario.startLoa || LoA.LoA0
-        // Create first SimState
+        // Create first SimStatobjecte
         this.impacts = scenario.actionEffects ? this.parseImpacts(scenario.actionEffects) : []
         this.horizon = scenario.horizon || 20
         this.rewardSystem = scenario.rewardSystem || 'max_automation'
@@ -99,7 +100,7 @@ class Simulation {
         this.curLoA = this.context.performAction(action, this.curLoA, this.t, impacts)
     }
 
-    performOption(option: Option): void {
+    performOption(option: Option): number {
         let done = false
         let cur: MState | null = null
         let to: MState | null = null
@@ -115,6 +116,8 @@ class Simulation {
 
             done = option.finalizeTransition(cur, to) || attempts >= option.attempts
         }
+
+        return attempts
     }
 
     getTT(factorName: string, futureScope: number, t: number = this.t): number {
@@ -155,6 +158,20 @@ class Simulation {
             std: ae.std,
             name: ae.name,
         }))
+    }
+
+    clone(): Simulation {
+        const factors = this.context.factors
+        const factorClones: Record<FactorHash, Factor> = Object.keys(factors).reduce((clone, key) => {
+            const factorClone = JSON.parse(JSON.stringify(factors[key]))
+            Object.setPrototypeOf(factorClone, Factor.prototype)
+            return { ...clone, [key]: factorClone }
+        }, {})
+        const contextClone = new Context([], factorClones, true)
+        const clone = { ...this, context: contextClone } as Simulation
+        Object.setPrototypeOf(clone, Simulation.prototype)
+
+        return clone
     }
 }
 

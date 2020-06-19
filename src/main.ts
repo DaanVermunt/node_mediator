@@ -50,7 +50,7 @@ function mainLoop() {
         const prims = getMOptions(mStates, simState, horizon)
 
         // Get Opt Action
-        const process = new Process(mStates, Object.values(prims), curMState, { gamma: .99, lr: .4, n: 50 })
+        const process = new Process(mStates, Object.values(prims), sim, { gamma: .99, lr: .4, n: 50 })
         const action = process.getAction()
 
         // console.log(mPolicyToString(mStates, process.getPolicy(), process.getQFunction(), 20, curMState.autonomousConfidence))
