@@ -86,7 +86,7 @@ export const getMOptions = (mStates: MState[], simState: SimulationState, nrStep
         getPolicyFunction('wake_up', primitives),
         1,
         (from: State, to: State) => isMState(from) && isMState(to)
-            ?  from.humanConfidence + 1 === to.humanConfidence
+            ?  from.humanConfidence + 1 === to.humanConfidence || to.humanImpact > 0
             : logWrongType(true),
         'wake_up',
     )

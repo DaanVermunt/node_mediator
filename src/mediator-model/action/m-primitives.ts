@@ -1,12 +1,12 @@
 import { Action } from '../../MDP/action/action'
-import MState, { AutonomousConfidence, HumanConfidence, LoA, toMState, transCost, wakeUpCost, zeroState } from '../state/m-state'
+import MState, { AutonomousConfidence, HumanConfidence, HumanImpact, LoA, toMState, transCost, wakeUpCost, zeroState } from '../state/m-state'
 import Primitive from '../../MDP/action/primitive'
 import { State, StateHash } from '../../MDP/state/state'
 import { SimulationState } from '../../simulation/simulation-state'
 import { getACfromSimState, getHCfromSimState } from '../../simulation/simulation'
 
 export const getTransFunction = (simState: SimulationState, maxTime: number) => {
-    const impactCach: Record<PrimitiveName, Record<number, { hc: HumanConfidence, ac: AutonomousConfidence }>> = {
+    const impactCach: Record<PrimitiveName, Record<number, { hc: HumanConfidence, ac: AutonomousConfidence, hci: HumanImpact }>> = {
         do_nothing: {},
         loa_up: {},
         loa_down: {},
@@ -16,6 +16,8 @@ export const getTransFunction = (simState: SimulationState, maxTime: number) => 
     primitiveNames.forEach(primName => {
         for (let i = 0; i <= maxTime; i++) {
             // Action simImpacts are only for non-loa up and non loa down, i.e. hc_up
+            const oldHC = getHCfromSimState(simState, i + 1)
+
             const actionsImpacts = simState.impacts.filter(impact => impact.effectFrom === primName)
             actionsImpacts.forEach(imp => {
                 simState.context.addActionForPredictions(imp.meanEffect, imp.effectFactor, simState.t + i + 1)
@@ -28,7 +30,10 @@ export const getTransFunction = (simState: SimulationState, maxTime: number) => 
                 simState.context.resetImpactsForFactor(imp.effectFactor)
             })
 
-            impactCach[primName][i] = { hc: newHCWithAction, ac: newACWithAction }
+            // TODO: is there an argument for negative HCI
+            const newHCI = Math.max(newHCWithAction - oldHC, 0)
+
+            impactCach[primName][i] = { hc: newHCWithAction, ac: newACWithAction, hci: newHCI }
         }
     })
 
@@ -47,24 +52,28 @@ export const getTransFunction = (simState: SimulationState, maxTime: number) => 
 
         const newAC = impactCach[action][from.time].ac
         const newHC = impactCach[action][from.time].hc
+        const newHCI = impactCach[action][from.time].hci
 
         switch (action) {
             case 'do_nothing':
-                const stateTo = new MState(newHC, from.loa, newAC, from.time + 1, from.rewardSystem)
+                const stateTo = new MState(newHC, from.loa, newAC, from.time + 1, from.humanImpact, from.rewardSystem)
                 trans[stateTo.h()] = trans[stateTo.h()] ? trans[stateTo.h()] + 1 : 1
                 break
 
             case 'hc_up':
-                if (from.humanConfidence <= HumanConfidence.HC3) {
-                    const nextState = new MState(newHC, from.loa, newAC, from.time + 1, from.rewardSystem)
+                // TODO under what conditions can we do this?
+                // TODO is there a max?
+                // TODO Can we accumulate?
+                if (newHCI > 0) {
+                    const nextState = new MState(from.humanConfidence, from.loa, newAC, from.time + 1, newHCI, from.rewardSystem)
                     trans[nextState.h()] = trans[nextState.h()] ? trans[nextState.h()] + 1 : 1
                 }
                 break
 
             case 'loa_down':
                 if (from.loa > LoA.LoA0) {
-                    const goalState = new MState(newHC, from.loa - 1, newAC, from.time + 1, from.rewardSystem)
-                    const failState = new MState(newHC, from.loa, newAC, from.time + 1, from.rewardSystem)
+                    const goalState = new MState(newHC, from.loa - 1, newAC, from.time + 1, from.humanImpact, from.rewardSystem)
+                    const failState = new MState(newHC, from.loa, newAC, from.time + 1, from.humanImpact, from.rewardSystem)
 
                     trans[goalState.h()] = trans[goalState.h()] ? trans[goalState.h()] + 1 : 1
                     trans[failState.h()] = trans[failState.h()] ? trans[failState.h()] + 0 : 0
@@ -73,8 +82,8 @@ export const getTransFunction = (simState: SimulationState, maxTime: number) => 
 
             case 'loa_up':
                 if (from.loa < LoA.LoA3) {
-                    const goalState = new MState(newHC, from.loa + 1, newAC, from.time + 1, from.rewardSystem)
-                    const failState = new MState(newHC, from.loa, newAC, from.time + 1, from.rewardSystem)
+                    const goalState = new MState(newHC, from.loa + 1, newAC, from.time + 1, newHCI, from.rewardSystem)
+                    const failState = new MState(newHC, from.loa, newAC, from.time + 1, newHCI, from.rewardSystem)
 
                     trans[goalState.h()] = trans[goalState.h()] ? trans[goalState.h()] + 1 : 1
                     trans[failState.h()] = trans[failState.h()] ? trans[failState.h()] + 0 : 0

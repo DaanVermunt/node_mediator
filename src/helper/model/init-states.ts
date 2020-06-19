@@ -1,4 +1,4 @@
-import MState, { AutonomousConfidence, HumanConfidence, LoA, zeroState } from '../../mediator-model/state/m-state'
+import MState, { AutonomousConfidence, HumanConfidence, HumanImpact, LoA, zeroState } from '../../mediator-model/state/m-state'
 import { RewardSystem } from '../../simulation/scenario'
 
 function enumValues<T>(t: T): ReadonlyArray<T[keyof T]> {
@@ -11,10 +11,12 @@ export const createMStates = (time: number, rewardSystem: RewardSystem): MState[
     enumValues(HumanConfidence).forEach(hc => {
         enumValues(LoA).forEach(loa => {
             enumValues(AutonomousConfidence).forEach(ac => {
-                for (let t = 0; t < time; t++) {
-                    const st = new MState(hc, loa,  ac, t, rewardSystem)
-                    res.push(st)
-                }
+                enumValues(HumanImpact).forEach(hci => {
+                    for (let t = 0; t < time; t++) {
+                        const st = new MState(hc, loa, ac, t, hci, rewardSystem)
+                        res.push(st)
+                    }
+                })
             })
         })
     })

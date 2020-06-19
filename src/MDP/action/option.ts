@@ -33,6 +33,7 @@ class Option implements Action {
             if (!action) {
                 return nullRes(from)
             }
+
             const res = action.perform(curState)
 
             rewardsSum = rewardsSum + res.reward - this.cost

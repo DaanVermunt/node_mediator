@@ -11,6 +11,13 @@ export enum HumanConfidence {
     HC3,
 }
 
+export enum HumanImpact {
+    HCI0,
+    HCI1,
+    HCI2,
+    HCI3,
+}
+
 export enum LoA {
     LoA0,
     LoA1,
@@ -91,6 +98,7 @@ class MState implements State {
         public readonly loa: LoA,
         public readonly autonomousConfidence: AutonomousConfidence,
         public readonly time: number,
+        public readonly humanImpact: HumanImpact,
         public readonly rewardSystem: RewardSystem = 'max_automation',
     ) {
         this.loaReward = loaR(rewardSystem)
@@ -108,14 +116,18 @@ class MState implements State {
         if (this.autonomousConfidence < this.loa) {
             return false
         }
+        return this.safeHCLoA()
+    }
 
+    private safeHCLoA(): boolean {
+        const totalHC = this.humanConfidence + this.humanImpact
         switch (this.loa) {
             case LoA.LoA0:
-                return this.humanConfidence === HumanConfidence.HC3
+                return totalHC >= HumanConfidence.HC3
             case LoA.LoA1:
-                return this.humanConfidence >= HumanConfidence.HC2
+                return totalHC >= HumanConfidence.HC2
             case LoA.LoA2:
-                return this.humanConfidence >= HumanConfidence.HC1
+                return totalHC >= HumanConfidence.HC1
             case LoA.LoA3:
                 return true
         }
@@ -126,16 +138,7 @@ class MState implements State {
             return false
         }
 
-        switch (this.loa) {
-            case LoA.LoA0:
-                return this.humanConfidence === HumanConfidence.HC3
-            case LoA.LoA1:
-                return this.humanConfidence >= HumanConfidence.HC2
-            case LoA.LoA2:
-                return this.humanConfidence >= HumanConfidence.HC1
-            case LoA.LoA3:
-                return true
-        }
+        return this.safeHCLoA()
     }
 
     reward(): number {
@@ -147,13 +150,13 @@ class MState implements State {
     }
 
     toString(): string {
-        return `hc:${this.humanConfidence}, loa: ${this.loa}, ac: ${this.autonomousConfidence}, t: ${this.time}`
+        return `hc:${this.humanConfidence}, hci: ${this.humanImpact}, loa: ${this.loa}, ac: ${this.autonomousConfidence}, t: ${this.time}`
     }
 
 }
 
 export const fromSimState = (simState: SimulationState): MState => {
-    return new MState(getHCfromSimState(simState), simState.LoA, getACfromSimState(simState), 0, simState.rewardSystem)
+    return new MState(getHCfromSimState(simState), simState.LoA, getACfromSimState(simState), 0, 0, simState.rewardSystem)
 }
 
 export const fromStateHash = (st: StateHash): MState => {
@@ -163,9 +166,10 @@ export const fromStateHash = (st: StateHash): MState => {
     const ac = getElement(st, 'ac:')
     const hc = getElement(st, 'hc')
     const loa = getElement(st, 'loa:')
-    return new MState(hc, loa, ac, t)
+    const hci = getElement(st, 'hci:')
+    return new MState(hc, loa, ac, t, hci)
 }
 
-export const zeroState: MState = new MState(0, 0, 0, -1)
+export const zeroState: MState = new MState(0, 0, 0, -1, 0)
 
 export default MState
