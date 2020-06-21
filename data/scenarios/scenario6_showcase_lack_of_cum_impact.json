@@ -1,7 +1,7 @@
 {
   "description": "Sim 5, we have two types of Human Confidence degration, one we can solve and one we cannot",
   "totalT": 33,
-  "rewardSystem": "min_automation",
+  "rewardSystem": "max_automation",
   "factors": [
     {
       "name": "D_LoA0",
@@ -68,7 +68,7 @@
 
     {
       "name": "distraction",
-      "value": "${_t} === 18 ? ${-1} + .4 : ${-1}",
+      "value": "${_t} === 18 ? .35 : ${-1}",
       "start_value": 0.00,
       "type": "modeled",
       "dependence": "exogenous"
@@ -79,7 +79,7 @@
       "primitive_name": "hc_up",
       "name": "alarmAction",
       "on_factor": "distraction",
-      "diff": -0.25,
+      "diff": -0.1,
       "std": 0.0
     }
   ]
