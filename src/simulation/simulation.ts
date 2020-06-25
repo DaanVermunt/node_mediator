@@ -38,11 +38,12 @@ export const getACfromSimState = (simState: SimulationState, tDelta: number = 0)
 
     const loa1Pred = simState.context.getFactor('A_LoA1').getPrediction(at, 1)[0]
     const loa2Pred = simState.context.getFactor('A_LoA2').getPrediction(at, 1)[0]
+    const loa3Pred = simState.context.getFactor('A_LoA3').getPrediction(at, 1)[0]
 
-    const prediction = simState.context.getFactor('A_LoA2').getPrediction(at, 20)
-    const longTimeSafe = prediction.filter(predictionIsSafe).length === 20
+    // const prediction = simState.context.getFactor('A_LoA2').getPrediction(at, 20)
+    // const longTimeSafe = prediction.filter(predictionIsSafe).length === 20
 
-    if (longTimeSafe) {
+    if (predictionIsSafe(loa3Pred)) {
         return AutonomousConfidence.AC3
     } else if (predictionIsSafe(loa2Pred)) {
         return AutonomousConfidence.AC2

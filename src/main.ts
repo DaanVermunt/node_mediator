@@ -9,7 +9,6 @@ import { writeContextHistory, writeStateActionHistory, writeTTHistory } from './
 import { isEmergencyStop } from './MDP/action/action'
 import * as fs from 'fs'
 import { actionToArrow } from './MDP/process/policy'
-import { getElement, sortStateHash } from './helper/model/sort'
 
 const arg = argparser.parseArgs()
 const d = new Date()

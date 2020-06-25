@@ -61,7 +61,7 @@
     },
     {
       "name": "AC",
-      "value": "${road_condition} + ${traffic_predictability}",
+      "value": "${road_condition} + ${traffic_predictability} + ${long_term_safety}",
       "type": "modeled",
       "dependence": "endogenous"
     },
@@ -83,8 +83,15 @@
     },
 
     {
+      "name": "long_term_safety",
+      "value": " (54 < ${_t} && ${_t} < 78) ? .2 : 0",
+      "type": "modeled",
+      "dependence": "exogenous"
+    },
+
+    {
       "name": "road_condition",
-      "value": "(6 < ${_t} && ${_t} < 15) || (21 < ${_t} && ${_t} < 33) || (39 < ${_t} && ${_t} < 48) || (54 < ${_t} && ${_t} < 84)  || (93 < ${_t} && ${_t} < 99) || (105 < ${_t} && ${_t} < 114) ? .6 : 0",
+      "value": "(6 < ${_t} && ${_t} < 15) || (21 < ${_t} && ${_t} < 33) || (39 < ${_t} && ${_t} < 48) || (54 < ${_t} && ${_t} < 84)  || (93 < ${_t} && ${_t} < 99) || (105 < ${_t} && ${_t} < 114) ? .4 : 0",
       "type": "modeled",
       "dependence": "exogenous",
       "error": 0.5
