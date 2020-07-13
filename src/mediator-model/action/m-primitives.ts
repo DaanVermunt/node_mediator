@@ -6,7 +6,10 @@ import { SimulationState } from '../../simulation/simulation-state'
 import { getACfromSimState, getHCfromSimState } from '../../simulation/simulation'
 
 export const getTransFunction = (simState: SimulationState, maxTime: number) => {
-    const impactCach: Record<PrimitiveName, Record<number, { hc: HumanConfidence, ac: AutonomousConfidence, hci: HumanImpact }>> = {
+    const loaUpSuccessChance = 1
+    const loaDownSuccessChance = 1
+
+    const impactCache: Record<PrimitiveName, Record<number, { hc: HumanConfidence, ac: AutonomousConfidence, hci: HumanImpact }>> = {
         do_nothing: {},
         loa_up: {},
         loa_down: {},
@@ -33,7 +36,7 @@ export const getTransFunction = (simState: SimulationState, maxTime: number) => 
             // TODO: is there an argument for negative HCI
             const newHCI = Math.max(newHCWithAction - oldHC, 0)
 
-            impactCach[primName][i] = { hc: newHCWithAction, ac: newACWithAction, hci: newHCI }
+            impactCache[primName][i] = { hc: newHCWithAction, ac: newACWithAction, hci: newHCI }
         }
     })
 
@@ -50,9 +53,9 @@ export const getTransFunction = (simState: SimulationState, maxTime: number) => 
             return trans
         }
 
-        const newAC = impactCach[action][from.time].ac
-        const newHC = impactCach[action][from.time].hc
-        const newHCI = impactCach[action][from.time].hci
+        const newAC = impactCache[action][from.time].ac
+        const newHC = impactCache[action][from.time].hc
+        const newHCI = impactCache[action][from.time].hci
 
         switch (action) {
             case 'do_nothing':
@@ -75,8 +78,8 @@ export const getTransFunction = (simState: SimulationState, maxTime: number) => 
                     const goalState = new MState(newHC, from.loa - 1, newAC, from.time + 1, from.humanImpact, from.rewardSystem)
                     const failState = new MState(newHC, from.loa, newAC, from.time + 1, from.humanImpact, from.rewardSystem)
 
-                    trans[goalState.h()] = trans[goalState.h()] ? trans[goalState.h()] + 1 : 1
-                    trans[failState.h()] = trans[failState.h()] ? trans[failState.h()] + 0 : 0
+                    trans[goalState.h()] = trans[goalState.h()] ? trans[goalState.h()] + loaDownSuccessChance : loaDownSuccessChance
+                    trans[failState.h()] = trans[failState.h()] ? trans[failState.h()] + (1 - loaDownSuccessChance) : 1 - loaDownSuccessChance
                 }
                 break
 
@@ -85,8 +88,8 @@ export const getTransFunction = (simState: SimulationState, maxTime: number) => 
                     const goalState = new MState(newHC, from.loa + 1, newAC, from.time + 1, newHCI, from.rewardSystem)
                     const failState = new MState(newHC, from.loa, newAC, from.time + 1, newHCI, from.rewardSystem)
 
-                    trans[goalState.h()] = trans[goalState.h()] ? trans[goalState.h()] + 1 : 1
-                    trans[failState.h()] = trans[failState.h()] ? trans[failState.h()] + 0 : 0
+                    trans[goalState.h()] = trans[goalState.h()] ? trans[goalState.h()] + loaUpSuccessChance : loaUpSuccessChance
+                    trans[failState.h()] = trans[failState.h()] ? trans[failState.h()] + (1 - loaUpSuccessChance) : (1 - loaUpSuccessChance)
                 }
                 break
         }

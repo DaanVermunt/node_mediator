@@ -19,14 +19,14 @@ class Option implements Action {
             return nullRes(from)
         }
 
-        let doneAttemps = 0
+        let doneAttempts = 0
         let hasPassedIllegal = false
         let rewardsSum = 0
 
         let curState = from
         let nextState = from
 
-        while (!this.finalizeTransition(curState, nextState) && this.attempts >= doneAttemps && !hasPassedIllegal) {
+        while (!this.finalizeTransition(curState, nextState) && this.attempts >= doneAttempts && !hasPassedIllegal) {
             curState = nextState
 
             const action: Action | undefined = this.policy(curState)
@@ -37,16 +37,15 @@ class Option implements Action {
             const res = action.perform(curState)
 
             rewardsSum = rewardsSum + res.reward - this.cost
-            doneAttemps =  doneAttemps + res.numberOfSteps
+            doneAttempts =  doneAttempts + res.numberOfSteps
             nextState = res.to
             hasPassedIllegal = hasPassedIllegal || res.hasPassedIllegal
-
         }
 
         return {
             to: nextState,
             reward: rewardsSum,
-            numberOfSteps: doneAttemps,
+            numberOfSteps: doneAttempts,
             hasPassedIllegal,
         }
     }

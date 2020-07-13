@@ -1,5 +1,5 @@
 {
-  "description": "Sim 5, we have two types of Human Confidence degration, one we can solve and one we cannot",
+  "description": "Experiment 6, Scenario: Solvable by cumulative impact. A scenario where a single wake up action does not have enough impact to solve human fitness decrease.",
   "totalT": 33,
   "rewardSystem": "max_automation",
   "factors": [

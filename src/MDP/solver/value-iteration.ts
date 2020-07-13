@@ -8,8 +8,8 @@ import { isMState } from '../../mediator-model/state/m-state'
 class ValueIteration implements Solver {
     constructor(
         private gamma: number,
-        private lr: number,
-        private n: number = 200,
+        private epsilon: number,
+        private n: number,
     ) {
     }
 
@@ -22,7 +22,8 @@ class ValueIteration implements Solver {
         }
 
         if (isNumericQValue(qCurrent) && isNumericQValue(qMaxVal) && !hasPassedIllegal) {
-            return qCurrent + this.lr * (reward + Math.pow(this.gamma, numberOfSteps) * qMaxVal - qCurrent)
+            // return qCurrent + this.lr * (reward + Math.pow(this.gamma, numberOfSteps) * qMaxVal - qCurrent)
+            return qCurrent * Math.pow(this.gamma, numberOfSteps) + reward
         } else {
             return ILLEGAL
         }
@@ -30,7 +31,13 @@ class ValueIteration implements Solver {
 
     solve(p: Problem): QFunction {
         const q = new QFunction(p)
-        for (let i = 0; i < this.n; i++) {
+        let q2: null | QFunction = null
+        let n = 0
+        // for (let i = 0; i < this.n; i++) {
+        while ( (q2 === null || !q2.equals(q, this.epsilon)) && n < this.n) {
+            q2 = q.copy()
+            n = n + 1
+
             Object.values(p.states).forEach(state => {
                 p.actions.forEach(action => {
                     const qCurrent = q.get(state.h(), action.h())
@@ -41,6 +48,7 @@ class ValueIteration implements Solver {
             })
         }
 
+        console.log(`solving took --  ${n}  -- time steps`)
         return q
     }
 }

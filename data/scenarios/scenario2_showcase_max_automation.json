@@ -1,5 +1,5 @@
 {
-  "description": "Sim 2, showcases max automation",
+  "description": "Experiment 2, Scenario: Simple scenario. Showcases the max automation reward system.",
   "startLoa": 0,
   "totalT": 30,
   "rewardSystem": "max_automation",

@@ -1,5 +1,5 @@
 {
-  "description": "Sim 5, we have two types of Human Confidence degration, one we can solve and one we cannot",
+  "description": "Experiment 5, Scenario: Different types of impact. Two types of Human Confidence degradation, one we can solve and one we cannot",
   "totalT": 51,
   "rewardSystem": "max_automation",
   "factors": [
@@ -55,27 +55,32 @@
 
     {
       "name": "HC",
-      "value": "1 - .5 * ${distraction} - .5 * ${badRoad}",
+      "value": "1 - ${distraction} - ${badRoad}",
       "type": "modeled",
       "dependence": "endogenous"
     },
     {
       "name": "AC",
-      "value": "(9 <= ${_t} && ${_t} < 18) || (39 <= ${_t} && ${_t} < 45) ? .8 : 0",
+      "value": "(9 <= ${_t} && ${_t} < 18) || (39 <= ${_t} && ${_t} < 45) ? .8 - ${ACDegrade} : 0",
       "type": "modeled",
       "dependence": "endogenous"
     },
-
+    {
+      "name": "ACDegrade",
+      "value": "(15 <= ${_t} && ${_t} < 18) ? .2 : 0",
+      "type": "modeled",
+      "dependence": "exogenous"
+    },
     {
       "name": "badRoad",
-      "value": "${_t} === 42 ? .4 : ${-1}",
+      "value": "${_t} === 42 ? .3 : ${-1}",
       "start_value": 0.00,
       "type": "modeled",
       "dependence": "exogenous"
     },
     {
       "name": "distraction",
-      "value": "${_t} === 12 ? .4 : ${-1}",
+      "value": "${_t} === 12 ? .3 : ${-1}",
       "start_value": 0.00,
       "type": "modeled",
       "dependence": "exogenous"

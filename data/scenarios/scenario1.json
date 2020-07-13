@@ -1,5 +1,5 @@
 {
-  "description": "Sim 1 after the presentation given by Bram Bakker on Feb 3 2020, we will try to invoke most required actions of the mediator.",
+  "description": "Experiment 1, Scenario: Base Case. After the presentation given by Bram Bakker on Feb 3 2020, we will try to invoke most required actions of the mediator.",
   "totalT": 120,
   "rewardSystem": "max_automation",
   "factors": [
@@ -36,7 +36,7 @@
     },
     {
       "name": "A_LoA1",
-      "value": "${AC} > .5 ? 1 : 0",
+      "value": "${AC} > .3 ? 1 : 0",
       "type": "modeled",
       "dependence": "endogenous"
     },
@@ -68,7 +68,7 @@
 
     {
       "name": "sleepiness",
-      "value": "${_t} === 43 ? ${-1} + 1 : ${-1} * 1.01",
+      "value": "${_t} === 43 ? ${-1} + 1 : ${-1}",
       "start_value": 0.01,
       "type": "modeled",
       "dependence": "exogenous",
@@ -91,7 +91,7 @@
 
     {
       "name": "road_condition",
-      "value": "(6 < ${_t} && ${_t} < 15) || (21 < ${_t} && ${_t} < 33) || (39 < ${_t} && ${_t} < 48) || (54 < ${_t} && ${_t} < 84)  || (93 < ${_t} && ${_t} < 99) || (105 < ${_t} && ${_t} < 114) ? .4 : 0",
+      "value": "(6 < ${_t} && ${_t} < 18) || (21 < ${_t} && ${_t} < 36) || (39 < ${_t} && ${_t} < 48) || (54 < ${_t} && ${_t} < 87)  || (93 < ${_t} && ${_t} < 99) || (105 < ${_t} && ${_t} < 114) ? .4 : 0",
       "type": "modeled",
       "dependence": "exogenous",
       "error": 0.5

@@ -17,21 +17,27 @@ export const formatQValue = (val: QValue): string => {
 }
 
 class QFunction {
+
     constructor(
         private readonly p: Problem,
+        private readonly qValuesInit?: Record<StateHash, Record<ActionHash, QValue>>,
     ) {
-        this.qValues = {} as Record<StateHash, Record<ActionHash, number>>
-        p.states.forEach(state => {
+        if (qValuesInit) {
+            this.qValues = JSON.parse(JSON.stringify(qValuesInit))
+        } else {
+            this.qValues = {} as Record<StateHash, Record<ActionHash, QValue>>
+            p.states.forEach(state => {
 
-            this.qValues[state.h()] = {} as Record<ActionHash, number>
-            p.actions.forEach(action => {
-                this.qValues[state.h()][action.h()] = 0
+                this.qValues[state.h()] = {} as Record<ActionHash, QValue>
+                p.actions.forEach(action => {
+                    this.qValues[state.h()][action.h()] = 0
+                })
             })
-        })
+        }
         this.maxQValue = this.maxQValue.bind(this)
     }
 
-    qValues: Record<StateHash, Record<ActionHash, QValue>>
+    qValues: Record<StateHash, Record<ActionHash, QValue>> = {} as Record<StateHash, Record<ActionHash, QValue>>
 
     get(state: StateHash, action: ActionHash): QValue {
         return this.qValues[state][action]
@@ -61,18 +67,34 @@ class QFunction {
         })
     }
 
-    equals(other: QFunction): boolean {
-        this.p.states.forEach(state => {
-            this.p.actions.forEach(action => {
+    equals(other: QFunction, epsilon: number = 0): boolean {
+        try {
+            this.p.states.forEach(state => {
+                this.p.actions.forEach(action => {
 
-                if (this.qValues[state.h()][action.h()] !== other.qValues[state.h()][action.h()]) {
-                    return false
-                }
+                    const a = this.qValues[state.h()][action.h()]
+                    const b = other.qValues[state.h()][action.h()]
+                    if (isNumericQValue(a) && isNumericQValue(b)) {
 
+                        if (Math.abs(b - a) > epsilon) {
+                            throw new Error()
+                        }
+                    } else {
+                        if (a !== b) {
+                            throw new Error()
+                        }
+                    }
+                })
             })
-        })
+        } catch (e) {
+            return false
+        }
 
         return true
+    }
+
+    copy(): QFunction {
+        return new QFunction(this.p, this.qValues)
     }
 }
 

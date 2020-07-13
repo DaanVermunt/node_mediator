@@ -1,5 +1,5 @@
 {
-  "description": "Sim 4, showcases min transactions",
+  "description": "Experiment 4, Scenario: Simple scenario. Showcases the min transition reward system.",
   "startLoa": 0,
   "totalT": 30,
   "rewardSystem": "min_transitions",
