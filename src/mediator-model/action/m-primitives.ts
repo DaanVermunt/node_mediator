@@ -6,8 +6,8 @@ import { SimulationState } from '../../simulation/simulation-state'
 import { getACfromSimState, getHCfromSimState } from '../../simulation/simulation'
 
 export const getTransFunction = (simState: SimulationState, maxTime: number) => {
-    const loaUpSuccessChance = 1
-    const loaDownSuccessChance = 1
+    const loaUpSuccessChance = simState.loaActionImplementations.up.successOfPrimitive
+    const loaDownSuccessChance = simState.loaActionImplementations.down.successOfPrimitive
 
     const impactCache: Record<PrimitiveName, Record<number, { hc: HumanConfidence, ac: AutonomousConfidence, hci: HumanImpact }>> = {
         do_nothing: {},

@@ -44,6 +44,8 @@ function mainLoop() {
     const horizon = solverType === 'heuristic' ? 4 : (sim.horizon || 20)
     let simState = sim.getSimState(horizon)
 
+    const timeOfES  = simState.timeOfES
+
     const mStates = createMStates(horizon, simState.rewardSystem)
 
     for (let i = 0; i < nrSteps; i++) {

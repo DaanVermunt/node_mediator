@@ -1,7 +1,7 @@
 import { LoA } from '../mediator-model/state/m-state'
 import Context from './context'
 import { ActionImpact } from './actionImpact'
-import { RewardSystem } from './scenario'
+import { LoaParams, RewardSystem } from './scenario'
 
 export interface SimulationState {
     t: number
@@ -13,4 +13,6 @@ export interface SimulationState {
     rewardSystem: RewardSystem
     impacts: ActionImpact[]
     futureScope: number
+    timeOfES: number
+    loaActionImplementations: LoaParams
 }
