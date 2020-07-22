@@ -57,14 +57,14 @@ function mainLoop() {
 
         // Get Opt Action
         const process = solverType === 'mdp' ?
-                new MarkovDecisionProcess(mStates, Object.values(options), curMState, { gamma: .97, epsilon: 1, n: 500 }) :
+                new MarkovDecisionProcess(mStates, Object.values(options), curMState, { gamma: .97, epsilon: 1, n: 500, timeOfES }) :
                 new HeuristicProcess(mStates, Object.values(options), curMState, solverType)
         const action = process.getAction()
 
         // Also compute other possible actions
         const alternativeActions = { actionHeuristic: '', actionMDP: '' }
         if (solverType === 'passive') {
-            const mdp = new MarkovDecisionProcess(mStates, Object.values(options), curMState, { gamma: .99, epsilon: 5, n: 100 })
+            const mdp = new MarkovDecisionProcess(mStates, Object.values(options), curMState, { gamma: .99, epsilon: 5, n: 100, timeOfES: 5 })
             const mdpAct = mdp.getAction()
             alternativeActions.actionMDP = mdpAct ? mdpAct.name : 'no_action'
 

@@ -12,7 +12,7 @@ class MarkovDecisionProcess implements Process {
         private readonly states: State[],
         private readonly actions: Action[],
         private readonly curState: State,
-        private solverParams: { gamma: number, epsilon: number, n: number },
+        private solverParams: { gamma: number, epsilon: number, n: number, timeOfES: number },
     ) {
         this.problem = {
             states,
@@ -21,7 +21,7 @@ class MarkovDecisionProcess implements Process {
             actionList: actions.reduce((res, action) => ({ [action.h()]: action, ...res }), {} as Record<ActionHash, Action>),
         }
 
-        this.solver = new ValueIteration(solverParams.gamma, solverParams.epsilon, solverParams.n)
+        this.solver = new ValueIteration(solverParams.gamma, solverParams.epsilon, solverParams.n, solverParams.timeOfES)
     }
 
     private readonly problem: Problem

@@ -10,6 +10,7 @@ class ValueIteration implements Solver {
         private gamma: number,
         private epsilon: number,
         private n: number,
+        private timeOfES: number,
     ) {
     }
 

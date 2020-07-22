@@ -2,5 +2,5 @@
   "watch": ["src"],
   "ignore": ["*.spec.ts"],
   "ext": "ts",
-  "exec": "ts-node ./src/main.ts -i ./data/scenarios/scenario6_showcase_lack_of_cum_impact.json -o test"
+  "exec": "ts-node ./src/main.ts -i ./data/sim_example.json -o test -s mdp"
 }

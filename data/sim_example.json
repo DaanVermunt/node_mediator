@@ -1,104 +1,101 @@
 {
-  "actionEffects": [
-    {
-      "primitive_name": "hc_up",
-      "on_factor": "D_LoA*",
-      "diff": "+.1",
-      "std": 0.2
-    },
-    {
-      "primitive_name": "do_nothing",
-      "on_factor": "*_LoA*",
-      "diff": "-.1",
-      "std": 2
-    },
-    {
-      "primitive_name": "hc_up",
-      "on_factor": "sleepiness",
-      "diff": "*1.1",
-      "std": 0
-    }
-  ],
+  "description": "Experiment 3, Scenario: Simple scenario. Showcases the min automation reward system.",
+  "startLoa": 0,
+  "horizon": 10,
+  "timeOfES": 3,
+  "totalT": 30,
+  "rewardSystem": "min_automation",
   "factors": [
     {
       "name": "D_LoA0",
-      "value": "${dipp}",
+      "value": "${HC} > .8 ? 1 : 0",
       "type": "modeled",
-      "dependence": "endogenous",
-      "error": 0.1
+      "dependence": "endogenous"
     },
     {
       "name": "D_LoA1",
-      "value": "${dipp}",
+      "value": "${HC} > .6 ? 1 : 0",
       "type": "modeled",
-      "dependence": "endogenous",
-      "error": 0.1
+      "dependence": "endogenous"
     },
     {
       "name": "D_LoA2",
-      "value": "${dipp}",
+      "value": "${HC} > .2 ? 1 : 0",
       "type": "modeled",
-      "dependence": "endogenous",
-      "error": 0.0
+      "dependence": "endogenous"
+    },
+    {
+      "name": "D_LoA3",
+      "value": "${HC} > .1 ? 1 : 0",
+      "type": "modeled",
+      "dependence": "endogenous"
     },
 
     {
       "name": "A_LoA0",
-      "value": 0,
-      "type": "static",
-      "dependence": "endogenous",
-      "error": 0.0
+      "value": "${AC} > 0 ? 1 : 0",
+      "type": "modeled",
+      "dependence": "endogenous"
     },
     {
       "name": "A_LoA1",
-      "value": "${dipp}",
+      "value": "${AC} > .5 ? 1 : 0",
       "type": "modeled",
-      "dependence": "endogenous",
-      "error": 0.1
+      "dependence": "endogenous"
     },
     {
       "name": "A_LoA2",
-      "value": "${dipp}",
+      "value": "${AC} > .7 ? 1 : 0",
       "type": "modeled",
-      "dependence": "endogenous",
-      "error": 0.1
+      "dependence": "endogenous"
+    },
+    {
+      "name": "A_LoA3",
+      "value": "${AC} > .9 ? 1 : 0",
+      "type": "modeled",
+      "dependence": "endogenous"
     },
 
     {
-      "name": "sin",
-      "value": "Math.sin(${_t} * .1)",
+      "name": "HC",
+      "value": "1 - ${dip9} - ${dip12}",
       "type": "modeled",
-      "dependence": "exogenous",
-      "error": 0
+      "dependence": "exogenous"
     },
     {
-      "name": "dipp",
-      "value": "${_t} < 50 && ${_t} > 40 ? 0.5 : 1",
+      "name": "AC",
+      "value": ".8 - ${dip18} - ${dip21}",
       "type": "modeled",
-      "dependence": "exogenous",
-      "error": 0
+      "dependence": "exogenous"
+    },
+
+    {
+      "name": "dip9",
+      "value": "9 <= ${_t} && ${_t} < 12 ? .7 : 0",
+      "type": "modeled",
+      "dependence": "exogenous"
     },
     {
-      "name": "dipp_with_slope",
-      "value": "Math.max(0, Math.min((${_t} - 50) * .1 , 1))",
+      "name": "dip12",
+      "value": "12 <= ${_t} && ${_t} < 15 ? .3 : 0",
       "type": "modeled",
-      "dependence": "exogenous",
-      "error": 0
+      "dependence": "exogenous"
+    },
+
+    {
+      "name": "dip18",
+      "value": "18 <= ${_t} && ${_t} < 21 ? .2 : 0",
+      "type": "modeled",
+      "dependence": "exogenous"
     },
     {
-      "name": "sleepiness",
-      "value": "${-1} * .99",
-      "start_value": 1,
+      "name": "dip21",
+      "value": "21 <= ${_t} && ${_t} < 24 ? .5 : 0",
       "type": "modeled",
-      "dependence": "exogenous",
-      "error": 0.5
-    },
-    {
-      "name": "distraction",
-      "value": "${dipp}",
-      "type": "modeled",
-      "dependence": "endogenous",
-      "error": 0.5
+      "dependence": "exogenous"
     }
+
+  ],
+  "actionEffects": [
   ]
 }
