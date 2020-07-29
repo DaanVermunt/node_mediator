@@ -1,4 +1,4 @@
-import QFunction from './q-function'
+import QFunction, { isIllegalQValue, isNumericQValue, QValue } from './q-function'
 import { Problem } from '../process/problem'
 import { State, StateHash } from '../state/state'
 import { Action } from '../action/action'
@@ -58,4 +58,15 @@ test('Test equals', () => {
 
     q1.set('s1', 'a1', 10)
     expect(q1.equals(q2)).toBeFalsy()
+})
+
+test('is Illegal illegal', () => {
+    const q1: QValue = {to: 10}
+    const q2: QValue = 2
+
+    expect(isIllegalQValue(q1)).toBeTruthy()
+    expect(isNumericQValue(q1)).toBeFalsy()
+
+    expect(isIllegalQValue(q2)).toBeFalsy()
+    expect(isNumericQValue(q2)).toBeTruthy()
 })
