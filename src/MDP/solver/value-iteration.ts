@@ -1,6 +1,15 @@
 import { Solver } from './solver'
 import { Problem } from '../process/problem'
-import QFunction, { encodeIllegal, isNumericQValue, QValue } from './q-function'
+import QFunction, {
+    decodeIllegal,
+    encodeIllegal,
+    getNewIllegal,
+    IllegalDecoded,
+    ILLEGALQvalue,
+    isIllegalQValue,
+    isNumericQValue,
+    QValue
+} from './q-function'
 import { Action } from '../action/action'
 import { State, StateHash } from '../state/state'
 import { isMState } from '../../mediator-model/state/m-state'
@@ -23,11 +32,39 @@ class ValueIteration implements Solver {
             return 0
         }
 
-        if (isNumericQValue(qCurrent) && isNumericQValue(qMaxVal) && !hasPassedIllegal) {
-            return qCurrent * Math.pow(this.gamma, numberOfSteps) + reward
-        } else {
-            return encodeIllegal({ to: 1 })
+        if (isIllegalQValue(qCurrent)) {
+            const qCurValIllObj = decodeIllegal(qCurrent)
+            return encodeIllegal({
+                stepsToPossibleDanger: Math.max(qCurValIllObj.stepsToPossibleDanger, numberOfSteps),
+                qval: 1000,
+            })
         }
+
+        if (hasPassedIllegal) {
+            const illState: IllegalDecoded = {
+                stepsToPossibleDanger: numberOfSteps,
+                qval: qCurrent,
+            }
+
+            if (numberOfSteps <  this.timeOfES) {
+                return encodeIllegal(illState)
+            }
+        }
+
+        if (isIllegalQValue(qMaxVal)) {
+            const qMaxValIllObj = decodeIllegal(qMaxVal)
+
+            const totalSteps = qMaxValIllObj.stepsToPossibleDanger + numberOfSteps
+
+            if (totalSteps < this.timeOfES) {
+                return encodeIllegal({
+                    stepsToPossibleDanger: qMaxValIllObj.stepsToPossibleDanger + numberOfSteps,
+                    qval: qCurrent,
+                })
+            }
+        }
+
+        return qCurrent * Math.pow(this.gamma, numberOfSteps) + reward
     }
 
     solve(p: Problem): QFunction {

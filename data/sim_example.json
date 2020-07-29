@@ -64,7 +64,7 @@
     },
     {
       "name": "AC",
-      "value": ".8 - ${dip18} - ${dip21}",
+      "value": ".8 - ${dip9} - ${dip21}",
       "type": "modeled",
       "dependence": "exogenous"
     },
