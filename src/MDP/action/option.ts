@@ -26,7 +26,7 @@ class Option implements Action {
         let curState = from
         let nextState = from
 
-        while (!this.finalizeTransition(curState, nextState) && this.attempts >= doneAttempts && !hasPassedIllegal) {
+        while (!this.finalizeTransition(curState, nextState) && this.attempts > doneAttempts && !hasPassedIllegal) {
             curState = nextState
 
             const action: Action | undefined = this.policy(curState)

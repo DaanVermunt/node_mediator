@@ -1,5 +1,5 @@
 import Option from '../../MDP/action/option'
-import MState, { HumanConfidence, LoA, toMState } from '../state/m-state'
+import MState, { LoA, toMState } from '../state/m-state'
 import { getMPrimitives, PrimitiveName } from './m-primitives'
 import { SimulationState } from '../../simulation/simulation-state'
 import { State } from '../../MDP/state/state'

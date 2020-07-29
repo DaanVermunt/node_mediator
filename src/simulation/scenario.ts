@@ -33,6 +33,7 @@ export interface Scenario {
     description: string
     horizon?: number
     timeOfES?: number
+    fearOfES?: number
     rewardSystem?: RewardSystem
     alActionParams?: LoaParams
 }

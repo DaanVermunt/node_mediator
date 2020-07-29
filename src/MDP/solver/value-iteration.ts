@@ -16,6 +16,7 @@ class ValueIteration implements Solver {
 
     newQValue(qCurrent: QValue, qMax: (to: StateHash) => QValue, action: Action, state: State): QValue {
         const { to, reward, numberOfSteps, hasPassedIllegal } = action.perform(state)
+
         const qMaxVal = qMax(to.h())
 
         if (isMState(state) && state.time < 0) {
@@ -23,7 +24,6 @@ class ValueIteration implements Solver {
         }
 
         if (isNumericQValue(qCurrent) && isNumericQValue(qMaxVal) && !hasPassedIllegal) {
-            // return qCurrent + this.lr * (reward + Math.pow(this.gamma, numberOfSteps) * qMaxVal - qCurrent)
             return qCurrent * Math.pow(this.gamma, numberOfSteps) + reward
         } else {
             return encodeIllegal({ to: 1 })

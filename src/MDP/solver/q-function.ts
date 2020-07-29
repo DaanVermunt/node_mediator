@@ -13,7 +13,7 @@ export type ILLEGALQvalue = string
 export type QValue = number | ILLEGALQvalue
 
 export const isNumericQValue = (qval: QValue): qval is number => {
-    return !(typeof qval === 'string' && qval.startsWith('illegal'))
+    return !(typeof qval === 'string')
 }
 
 export const isIllegalQValue = (qval: QValue): qval is ILLEGALQvalue => {
@@ -79,6 +79,7 @@ class QFunction {
             const actQ = this.get(state, action.h())
 
             const res = isIllegalQValue(actQ) || maxQ > actQ ? maxAction : action
+            // const res = actQ === ILLEGAL || maxQ > actQ ? maxAction : action
 
             return res
         })
@@ -92,7 +93,6 @@ class QFunction {
                     const a = this.qValues[state.h()][action.h()]
                     const b = other.qValues[state.h()][action.h()]
                     if (isNumericQValue(a) && isNumericQValue(b)) {
-
                         if (Math.abs(b - a) > epsilon) {
                             throw new Error()
                         }
