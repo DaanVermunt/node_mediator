@@ -61,7 +61,7 @@ test('Test equals', () => {
 })
 
 test('is Illegal illegal', () => {
-    const q1: QValue = {to: 10}
+    const q1: QValue = 'illegal to 5'
     const q2: QValue = 2
 
     expect(isIllegalQValue(q1)).toBeTruthy()

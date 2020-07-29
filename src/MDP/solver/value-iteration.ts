@@ -1,6 +1,6 @@
 import { Solver } from './solver'
 import { Problem } from '../process/problem'
-import QFunction, { ILLEGAL, isNumericQValue, QValue } from './q-function'
+import QFunction, { encodeIllegal, isNumericQValue, QValue } from './q-function'
 import { Action } from '../action/action'
 import { State, StateHash } from '../state/state'
 import { isMState } from '../../mediator-model/state/m-state'
@@ -26,7 +26,7 @@ class ValueIteration implements Solver {
             // return qCurrent + this.lr * (reward + Math.pow(this.gamma, numberOfSteps) * qMaxVal - qCurrent)
             return qCurrent * Math.pow(this.gamma, numberOfSteps) + reward
         } else {
-            return ILLEGAL
+            return encodeIllegal({ to: 1 })
         }
     }
 

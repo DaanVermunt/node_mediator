@@ -2,11 +2,28 @@ import { Problem } from '../process/problem'
 import { StateHash } from '../state/state'
 import { Action, ActionHash, emergencyStop } from '../action/action'
 
-export const ILLEGAL = 'illegal'
-export type QValue = number | typeof ILLEGAL
+export interface IllegalDecoded {
+    to: number
+}
+
+export const encodeIllegal = (illState: IllegalDecoded): ILLEGALQvalue => JSON.stringify(illState)
+export const decodeIllegal = (illState: string): IllegalDecoded => JSON.parse(illState)
+
+export type ILLEGALQvalue = string
+export type QValue = number | ILLEGALQvalue
 
 export const isNumericQValue = (qval: QValue): qval is number => {
-    return qval !== 'illegal'
+    return !(typeof qval === 'string' && qval.startsWith('illegal'))
+}
+
+export const isIllegalQValue = (qval: QValue): qval is ILLEGALQvalue => {
+    if (typeof qval === 'string') {
+        const illState = decodeIllegal(qval)
+        if ('to' in illState) {
+            return true
+        }
+    }
+    return false
 }
 
 export const formatQValue = (val: QValue): string => {
@@ -49,11 +66,11 @@ class QFunction {
 
     maxQValue(state: StateHash): QValue {
         return Object.values(this.qValues[state])
-            .reduce((max, val) => val === ILLEGAL || max > val ? max : val, ILLEGAL)
+            .reduce((max, val) => isIllegalQValue(val) || max > val ? max : val, encodeIllegal({ to: 5 }))
     }
 
     getMaxAction(state: StateHash): Action {
-        if (this.maxQValue(state) === ILLEGAL) {
+        if (isIllegalQValue(this.maxQValue(state))) {
             return emergencyStop
         }
 
@@ -61,7 +78,7 @@ class QFunction {
             const maxQ = this.get(state, maxAction.h())
             const actQ = this.get(state, action.h())
 
-            const res = actQ === ILLEGAL || maxQ > actQ ? maxAction : action
+            const res = isIllegalQValue(actQ) || maxQ > actQ ? maxAction : action
 
             return res
         })
