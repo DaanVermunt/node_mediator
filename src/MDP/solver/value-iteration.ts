@@ -3,13 +3,9 @@ import { Problem } from '../process/problem'
 import QFunction, {
     decodeIllegal,
     encodeIllegal,
-    getNewIllegal,
     IllegalDecoded,
-    ILLEGALQvalue,
     isIllegalQValue,
-    isNumericQValue,
-    QValue
-} from './q-function'
+    QValue } from './q-function'
 import { Action } from '../action/action'
 import { State, StateHash } from '../state/state'
 import { isMState } from '../../mediator-model/state/m-state'
@@ -32,11 +28,13 @@ class ValueIteration implements Solver {
             return 0
         }
 
+        // TODO: how do we deal with the value inside the illegal state
+        // DO we have such a thing as prioritizing high possibilities
         if (isIllegalQValue(qCurrent)) {
             const qCurValIllObj = decodeIllegal(qCurrent)
             return encodeIllegal({
                 stepsToPossibleDanger: Math.max(qCurValIllObj.stepsToPossibleDanger, numberOfSteps),
-                qval: 1000,
+                qval: 0,
             })
         }
 
@@ -64,6 +62,7 @@ class ValueIteration implements Solver {
             }
         }
 
+        // TODO: TURN TO VALUE ITERATION USING THE POWER OF TRANSITION PROBABILITIES INSTEAD OF Q-LEARNING
         return qCurrent * Math.pow(this.gamma, numberOfSteps) + reward
     }
 

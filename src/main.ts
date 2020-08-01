@@ -11,6 +11,7 @@ import * as fs from 'fs'
 import { actionToArrow } from './MDP/process/policy'
 import HeuristicProcess from './MDP/process/heuristic-process'
 
+console.log('tete')
 const arg: Args = argparser.parseArgs()
 const d = new Date()
 console.log(`${d.getHours()}:${d.getMinutes()}:${d.getSeconds()}`)
@@ -114,7 +115,8 @@ function mainLoop() {
         })
     }
 
-    const outFolder = `${arg.outputFolder}/${solverType}`
+    const outFolder = arg.i > 0 ?  `${arg.outputFolder}/${solverType}/${arg.i}` : `${arg.outputFolder}/${solverType}`
+    // const outFolder =`${arg.outputFolder}/${solverType}`
     console.log(`Finished sim for ${arg.inputFile}, writing output`)
     fs.mkdirSync(`./data/out/${outFolder}`, { recursive: true })
     writeTTHistory(TTHistory, outFolder)

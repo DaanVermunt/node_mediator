@@ -4,6 +4,16 @@
   "horizon": 10,
   "timeOfES": 3,
   "totalT": 30,
+  "alActionParams": {
+    "up": {
+      "numberOfAttempts": 2,
+      "successOfPrimitive": 0.8
+    },
+    "down": {
+      "numberOfAttempts": 2,
+      "successOfPrimitive": 0.8
+    }
+  },
   "rewardSystem": "min_automation",
   "factors": [
     {
@@ -64,7 +74,7 @@
     },
     {
       "name": "AC",
-      "value": ".8 - ${dip9} - ${dip21}",
+      "value": ".8 - ${dip18} - ${dip21}",
       "type": "modeled",
       "dependence": "exogenous"
     },

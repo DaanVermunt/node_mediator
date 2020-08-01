@@ -3,9 +3,10 @@ import { ArgumentParser } from 'argparse'
 export type SolverType = 'heuristic' | 'mdp' | 'passive'
 
 export interface Args {
-    inputFile: string,
-    outputFolder: string,
-    solver: SolverType,
+    inputFile: string
+    outputFolder: string
+    solver: SolverType
+    i: number
 }
 
 export const argparser: ArgumentParser = new ArgumentParser()
@@ -41,5 +42,16 @@ argparser.addArgument(
         required: true,
         defaultValue: 'mdp',
         choices: solverOptions,
+    },
+)
+argparser.addArgument(
+    ['-n'],
+    {
+        help: 'the ith run of experiment',
+        type: 'int',
+        action: 'store',
+        dest: 'i',
+        required: false,
+        defaultValue: 0,
     },
 )
