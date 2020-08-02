@@ -1,17 +1,16 @@
 {
-  "description": "Experiment 3, Scenario: Simple scenario. Showcases the min automation reward system.",
-  "startLoa": 0,
+  "description": "Experiment 5, Scenario: Different types of impact. Two types of Human Confidence degradation, one we can solve and one we cannot",
+  "totalT": 51,
   "horizon": 10,
   "timeOfES": 5,
-  "totalT": 30,
   "alActionParams": {
     "up": {
-      "numberOfAttempts": 2,
-      "successOfPrimitive": 0.5
+      "numberOfAttempts": 1,
+      "successOfPrimitive": 1
     },
     "down": {
-      "numberOfAttempts": 2,
-      "successOfPrimitive": 0.5
+      "numberOfAttempts": 1,
+      "successOfPrimitive": 1
     }
   },
   "rewardSystem": "min_automation",
@@ -68,44 +67,45 @@
 
     {
       "name": "HC",
-      "value": "1 - ${dip9} - ${dip12}",
+      "value": "1 - ${distraction} - ${badRoad}",
       "type": "modeled",
-      "dependence": "exogenous"
+      "dependence": "endogenous"
     },
     {
       "name": "AC",
-      "value": ".8 - ${dip18} - ${dip21}",
+      "value": "(0 <= ${_t} && ${_t} < 18) || (39 <= ${_t} && ${_t} < 45) ? .8 - ${ACDegrade} : 0",
       "type": "modeled",
-      "dependence": "exogenous"
-    },
-
-    {
-      "name": "dip9",
-      "value": "9 <= ${_t} && ${_t} < 12 ? .7 : 0",
-      "type": "modeled",
-      "dependence": "exogenous"
+      "dependence": "endogenous"
     },
     {
-      "name": "dip12",
-      "value": "12 <= ${_t} && ${_t} < 15 ? .3 : 0",
-      "type": "modeled",
-      "dependence": "exogenous"
-    },
-
-    {
-      "name": "dip18",
-      "value": "18 <= ${_t} && ${_t} < 21 ? .2 : 0",
+      "name": "ACDegrade",
+      "value": "(15 <= ${_t} && ${_t} < 18) ? .2 : 0",
       "type": "modeled",
       "dependence": "exogenous"
     },
     {
-      "name": "dip21",
-      "value": "21 <= ${_t} && ${_t} < 24 ? .5 : 0",
+      "name": "badRoad",
+      "value": "${_t} === 42 ? .3 : ${-1}",
+      "start_value": 0.00,
+      "type": "modeled",
+      "dependence": "exogenous"
+    },
+    {
+      "name": "distraction",
+      "value": "${_t} === 5 ? .3 : ${-1}",
+      "start_value": 0.00,
       "type": "modeled",
       "dependence": "exogenous"
     }
-
   ],
   "actionEffects": [
+    {
+      "primitive_name": "hc_up",
+      "name": "alarmAction",
+      "on_factor": "distraction",
+      "diff": -0.5,
+      "success_chance": 0.7,
+      "std": 0.0
+    }
   ]
 }

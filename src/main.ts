@@ -56,7 +56,7 @@ function mainLoop() {
 
         // Get Opt Action
         const process = solverType === 'mdp' ?
-                new MarkovDecisionProcess(mStates, Object.values(options), curMState, { gamma: .97, epsilon: 1, n: 500, timeOfES }) :
+                new MarkovDecisionProcess(mStates, Object.values(options), curMState, { gamma: .97, epsilon: .1, n: 500, timeOfES }) :
                 new HeuristicProcess(mStates, Object.values(options), curMState, solverType)
         const action = process.getAction()
 

@@ -162,6 +162,7 @@ class Simulation {
             effectFactor: ae.on_factor,
             effectFrom: ae.primitive_name,
             meanEffect: ae.diff,
+            successChance: ae.success_chance || 1,
             std: ae.std,
             name: ae.name,
         }))

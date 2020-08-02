@@ -1,5 +1,15 @@
 import { Action } from '../../MDP/action/action'
-import MState, { AutonomousConfidence, HumanConfidence, HumanImpact, LoA, toMState, transCost, wakeUpCost, zeroState } from '../state/m-state'
+import MState, {
+    AutonomousConfidence,
+    fromStateHash,
+    HumanConfidence,
+    HumanImpact,
+    LoA,
+    toMState,
+    transCost,
+    wakeUpCost,
+    zeroState
+} from '../state/m-state'
 import Primitive from '../../MDP/action/primitive'
 import { State, StateHash } from '../../MDP/state/state'
 import { SimulationState } from '../../simulation/simulation-state'
@@ -9,7 +19,7 @@ export const getTransFunction = (simState: SimulationState, maxTime: number) => 
     const loaUpSuccessChance = simState.loaActionImplementations.up.successOfPrimitive
     const loaDownSuccessChance = simState.loaActionImplementations.down.successOfPrimitive
 
-    const impactCache: Record<PrimitiveName, Record<number, { hc: HumanConfidence, ac: AutonomousConfidence, hci: HumanImpact }>> = {
+    const impactCache: Record<PrimitiveName, Record<number, { hc: HumanConfidence, ac: AutonomousConfidence, hci: HumanImpact, probOfImpact: number }>> = {
         do_nothing: {},
         loa_up: {},
         loa_down: {},
@@ -22,6 +32,7 @@ export const getTransFunction = (simState: SimulationState, maxTime: number) => 
             const oldHC = getHCfromSimState(simState, i + 1)
 
             const actionsImpacts = simState.impacts.filter(impact => impact.effectFrom === primName)
+            const probOfImpact = actionsImpacts.map(impact => impact.successChance).reduce((prod, chance) => prod * chance, 1)
             actionsImpacts.forEach(imp => {
                 simState.context.addActionForPredictions(imp.meanEffect, imp.effectFactor, simState.t + i + 1)
             })
@@ -35,7 +46,7 @@ export const getTransFunction = (simState: SimulationState, maxTime: number) => 
 
             const newHCI = Math.max(newHCWithAction - oldHC, 0)
 
-            impactCache[primName][i] = { hc: newHCWithAction, ac: newACWithAction, hci: newHCI }
+            impactCache[primName][i] = { hc: newHCWithAction, ac: newACWithAction, hci: newHCI, probOfImpact }
         }
     })
 
@@ -52,9 +63,10 @@ export const getTransFunction = (simState: SimulationState, maxTime: number) => 
             return trans
         }
 
-        const newAC = impactCache[action][from.time].ac
+        const newAC  = impactCache[action][from.time].ac
         const newHC = impactCache[action][from.time].hc
         const newHCI = impactCache[action][from.time].hci
+        const probOfImpact = impactCache[action][from.time].probOfImpact
 
         switch (action) {
             case 'do_nothing':
@@ -64,11 +76,12 @@ export const getTransFunction = (simState: SimulationState, maxTime: number) => 
 
             case 'hc_up':
                 if (newHCI > 0) {
-                    const nextState = new MState(from.humanConfidence, from.loa, newAC, from.time + 1, newHCI, from.rewardSystem)
-                    trans[nextState.h()] = trans[nextState.h()] ? trans[nextState.h()] + 1 : 1
-                } else {
-                    const nextstate = new MState(newHC, from.loa, newAC, from.time + 1, 0, from.rewardSystem)
-                    trans[nextstate.h()] = trans[nextstate.h()] ? trans[nextstate.h()] + 1 : 1
+                    const wokeState = new MState(from.humanConfidence, from.loa, newAC, from.time + 1, newHCI, from.rewardSystem)
+                    const sleepState = new MState(from.humanConfidence, from.loa, newAC, from.time + 1, from.humanImpact, from.rewardSystem)
+                    // const sleepState = new MState(from.humanConfidence, from.loa, newAC, from.time + 1, from.humanImpact, from.rewardSystem)
+
+                    trans[wokeState.h()] = trans[wokeState.h()] ? trans[wokeState.h()] + 1 : probOfImpact
+                    trans[sleepState.h()] = trans[sleepState.h()] ? trans[sleepState.h()] + 1 : 1 - probOfImpact
                 }
                 break
 
