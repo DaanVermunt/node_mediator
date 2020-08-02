@@ -66,6 +66,12 @@ export const r = {
     bad: -100,
 }
 
+export const rewardList: RewardSystem[] = [
+    'min_transitions',
+    'min_automation',
+    'max_automation',
+]
+
 export const transCost = (rs: RewardSystem) => rs === 'min_transitions' ? 100 : 10
 export const wakeUpCost = 10
 
@@ -150,7 +156,8 @@ class MState implements State {
     }
 
     toString(): string {
-        return `hc: ${this.humanConfidence}, hci: ${this.humanImpact}, loa: ${this.loa}, ac: ${this.autonomousConfidence}, t: ${this.time}`
+        const rewardIdx = rewardList.findIndex(item => item === this.rewardSystem)
+        return `hc: ${this.humanConfidence}, hci: ${this.humanImpact}, loa: ${this.loa}, ac: ${this.autonomousConfidence}, t: ${this.time}, rw: ${rewardIdx}`
     }
 
 }
@@ -170,6 +177,7 @@ export const getHCI = (stateHash: StateHash): number => getFromStateHash(stateHa
 export const getLoA = (stateHash: StateHash): number => getFromStateHash(stateHash, 2)
 export const getAC = (stateHash: StateHash): number => getFromStateHash(stateHash, 3)
 export const getT = (stateHash: StateHash): number => getFromStateHash(stateHash, 4)
+export const getRw = (stateHash: StateHash): RewardSystem => rewardList[getFromStateHash(stateHash, 5)]
 
 export const fromSimState = (simState: SimulationState): MState => {
     return new MState(getHCfromSimState(simState), simState.LoA, getACfromSimState(simState), 0, 0, simState.rewardSystem)

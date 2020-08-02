@@ -1,4 +1,4 @@
-import MState, { AutonomousConfidence, getT, HumanConfidence, HumanImpact, LoA, r } from './m-state'
+import MState, { AutonomousConfidence, getRw, getT, HumanConfidence, HumanImpact, LoA, r } from './m-state'
 
 test('t -1 is zero', () => {
     const [loa, hc, ac, hci] = [LoA.LoA2, HumanConfidence.HC2, AutonomousConfidence.AC2, HumanImpact.HCI0]
@@ -56,4 +56,15 @@ test('multiple cases max_automation reward', () => {
         const state = new MState(testCase.hc, testCase.loa, testCase.ac, 0, 0,'max_automation')
         expect(state.reward()).toBe(testCase.reward)
     })
+})
+
+test('TEST GET REWARD', () => {
+    const state = new MState(0, 0, 0, 0, 0, 'min_automation')
+    const rw = getRw(state.h())
+
+    console.log(rw)
+
+    const state2 = new MState(0, 0, 0, 0, 0, rw)
+
+    expect(state.h()).toEqual(state2.h())
 })

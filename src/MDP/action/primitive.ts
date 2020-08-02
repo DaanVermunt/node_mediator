@@ -1,6 +1,7 @@
 import { State, StateHash } from '../state/state'
 import { Action, ActionRes, ActionResPerform, nullRes, nullResPerform } from './action'
 import { PrimitiveName } from '../../mediator-model/action/m-primitives'
+import { getAC, getHC, getHCI, getLoA, getT } from '../../mediator-model/state/m-state'
 
 class Primitive implements Action {
     constructor(

@@ -2,7 +2,13 @@ import { Action, ActionRes, ActionResPerform, nullRes, nullResPerform } from './
 import { State, StateHash } from '../state/state'
 import { Policy } from '../process/policy'
 import { OptionName } from '../../mediator-model/action/m-options'
-import { zeroState } from '../../mediator-model/state/m-state'
+import MState, {
+    getAC,
+    getHC,
+    getHCI,
+    getLoA, getRw,
+    getT,
+} from '../../mediator-model/state/m-state'
 
 class Option implements Action {
     constructor(
@@ -27,11 +33,14 @@ class Option implements Action {
             [item]: results[item].reward,
         }), {})
 
-        const expReward = Object.values(results).reduce((res, item) => item.reward * Math.pow(discount, item.depth), 0)
+        const expReward = Object.values(results).reduce((res, item) => res + item.reward * Math.pow(discount, item.depth), 0)
 
         const transProbs = Object.keys(results).reduce((res, item) => ({
             ...res,
-            [item]: { state: zeroState, prob: results[item].prob },
+            [item]: {
+                state: new MState(getHC(item), getLoA(item), getAC(item), getT(item), getHCI(item), getRw(item)),
+                prob: results[item].prob,
+                },
         }), {})
 
         const { numberOfSteps, hasPassedIllegal } = Object

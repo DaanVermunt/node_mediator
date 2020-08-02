@@ -165,11 +165,11 @@ class ValueIteration implements Solver {
         // console.log(Object
         //     .keys(v.vValues)
         //     .filter(key => getT(key) < 3)
-        //     .filter(key => getLoA(key) === 0)
-        //     .filter(key => getHCI(key) === 0 || getHCI(key) === 1)
-        //     .filter(key => getAC(key) === 0)
-        //     .filter(key => getHC(key) === 3 || getHC(key) === 2)
-        //     .map(key => `${key}, ${v.vValues[key]}`),
+        //     // .filter(key => getLoA(key) === 0 || getLoA(key) === 1)
+        //     .filter(key => getHCI(key) === 0)
+        //     .filter(key => getAC(key) === 0 || getAC(key) === 2)
+        //     .filter(key => getHC(key) === 3)
+        //     .map(key => `${key}, ${v.vValues[key]}, ${v.actions[key]}`),
         // )
 
         console.log(`solving took --  ${n}  -- time steps`)

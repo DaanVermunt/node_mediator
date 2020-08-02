@@ -1,3 +1,5 @@
+import { REWARDS } from './mediator-model/state/m-state'
+
 test('true is equal to true', () => {
     expect(true).toBe(true)
 })
@@ -11,5 +13,6 @@ test('RANDOM', () => {
         const draw = Math.random()
         cnt = cnt + (draw < prob ? 1 : 0)
     }
-    console.log(cnt / attempts)
+    // console.log(cnt / attempts)
 })
+
