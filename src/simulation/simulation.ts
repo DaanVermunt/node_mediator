@@ -120,6 +120,7 @@ class Simulation {
             attempts = attempts + 1
 
             done = option.finalizeTransition(cur, to) || attempts >= option.attempts
+            // console.log(attempts)
         }
     }
 

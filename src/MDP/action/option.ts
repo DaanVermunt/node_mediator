@@ -2,8 +2,7 @@ import { Action, ActionRes, ActionResPerform, nullRes, nullResPerform } from './
 import { State, StateHash } from '../state/state'
 import { Policy } from '../process/policy'
 import { OptionName } from '../../mediator-model/action/m-options'
-import { getT, zeroState } from '../../mediator-model/state/m-state'
-import has = Reflect.has
+import { zeroState } from '../../mediator-model/state/m-state'
 
 class Option implements Action {
     constructor(
@@ -23,6 +22,7 @@ class Option implements Action {
         if (!this.inInitSubset(from, this.name)) {
             return nullRes(from)
         }
+
 
         const results = this.traverse(from, 1)
 
@@ -60,7 +60,12 @@ class Option implements Action {
 
     traverse(from: State, probToGetHere: number, depth = 1): Record<StateHash, {prob: number, reward: number, isSafe: boolean, depth: number}> {
         const action = this.policy(from)
+
         const { transProbs, reward } = action.getExpReward(from, 0)
+
+        // if (this.name === 'wake_up' && Math.random() < .005) {
+        //     console.log(transProbs)
+        // }
 
         return Object.keys(transProbs).reduce((res, stateHash: StateHash) => {
             const to = transProbs[stateHash].state

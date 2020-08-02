@@ -67,10 +67,8 @@ export const getTransFunction = (simState: SimulationState, maxTime: number) => 
                 // TODO under what conditions can we do this?
                 // TODO is there a max?
                 // TODO Can we accumulate?
-                if (newHCI > 0) {
-                    const nextState = new MState(from.humanConfidence, from.loa, newAC, from.time + 1, newHCI, from.rewardSystem)
-                    trans[nextState.h()] = trans[nextState.h()] ? trans[nextState.h()] + 1 : 1
-                }
+                const nextState = new MState(from.humanConfidence, from.loa, newAC, from.time + 1, newHCI, from.rewardSystem)
+                trans[nextState.h()] = trans[nextState.h()] ? trans[nextState.h()] + 1 : 1
                 break
 
             case 'loa_down':

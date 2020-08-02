@@ -7,7 +7,7 @@ import {
 } from './q-function'
 import { Action, ActionHash } from '../action/action'
 import { State, StateHash } from '../state/state'
-import { getHCI, getT } from '../../mediator-model/state/m-state'
+import { getAC, getHC, getHCI, getLoA, getT } from '../../mediator-model/state/m-state'
 import VFunction, { isIllegalVValue, isNumericVValue, VValue, vValueCompare } from './v-function'
 
 class ValueIteration implements Solver {
@@ -112,6 +112,10 @@ class ValueIteration implements Solver {
                 })
                 , { val: 0, illegal: false, distanceToIllegal: Infinity })
 
+        // if (!haspassedillegal && object.keys(transprobs).length === 0) {
+        //     console.log(action.h())
+        // }
+
         if (hasPassedIllegal) {
             const illState: IllegalDecoded = {
                 stepsToPossibleDanger: numberOfSteps,
@@ -155,15 +159,21 @@ class ValueIteration implements Solver {
                 v.setAction(state.h(), maxAction.action)
                 v.setValue(state.h(), maxAction.val)
 
+                // if (getT(state.h()) < 5 && isNumericVValue(maxAction.val) && maxAction.val === 0) {
+                //     console.log(state.h(), maxAction)
+                // }
             })
         }
 
-        // console.log(Object
-        //     .keys(v.vValues)
-        //     .filter(key => getT(key) < 1)
-        //     .filter(key => getHCI(key) === 0)
-        //     .map(key => `${key}, ${v.vValues[key]}`)
-        // )
+        console.log(Object
+            .keys(v.vValues)
+            .filter(key => getT(key) < 3)
+            .filter(key => getLoA(key) === 0)
+            .filter(key => getHCI(key) === 0)
+            .filter(key => getAC(key) === 0)
+            .filter(key => getHC(key) === 2 || getHC(key) === 0)
+            .map(key => `${key}, ${v.vValues[key]}`),
+        )
 
         console.log(`solving took --  ${n}  -- time steps`)
         return v

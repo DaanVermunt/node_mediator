@@ -7,11 +7,11 @@
   "alActionParams": {
     "up": {
       "numberOfAttempts": 2,
-      "successOfPrimitive": 0.8
+      "successOfPrimitive": 0.5
     },
     "down": {
       "numberOfAttempts": 2,
-      "successOfPrimitive": 0.8
+      "successOfPrimitive": 0.5
     }
   },
   "rewardSystem": "min_automation",

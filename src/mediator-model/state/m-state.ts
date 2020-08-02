@@ -165,8 +165,11 @@ const getFromStateHash = (stateHash: StateHash, index: number): number => {
     return -1
 }
 
+export const getHC = (stateHash: StateHash): number => getFromStateHash(stateHash, 0)
+export const getHCI = (stateHash: StateHash): number => getFromStateHash(stateHash, 1)
+export const getLoA = (stateHash: StateHash): number => getFromStateHash(stateHash, 2)
+export const getAC = (stateHash: StateHash): number => getFromStateHash(stateHash, 3)
 export const getT = (stateHash: StateHash): number => getFromStateHash(stateHash, 4)
-export const getHCI = (stateHash: StateHash): number => getFromStateHash(stateHash, 2)
 
 export const fromSimState = (simState: SimulationState): MState => {
     return new MState(getHCfromSimState(simState), simState.LoA, getACfromSimState(simState), 0, 0, simState.rewardSystem)
