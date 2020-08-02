@@ -2,6 +2,7 @@ import QFunction, { isIllegalQValue, isNumericQValue, QValue } from './q-functio
 import { Problem } from '../process/problem'
 import { State, StateHash } from '../state/state'
 import { Action } from '../action/action'
+import { encodeIllegal, VValue, vValueCompare } from './v-function'
 
 test('Copying a Qfunction should not copy by reference', () => {
     const states  = [
@@ -69,4 +70,27 @@ test('is Illegal illegal', () => {
 
     expect(isIllegalQValue(q2)).toBeFalsy()
     expect(isNumericQValue(q2)).toBeTruthy()
+})
+
+test('vValue compare', () => {
+    const v1: VValue = encodeIllegal({
+        stepsToPossibleDanger: 10,
+        val: 20,
+    })
+    const v2: VValue = encodeIllegal({
+        stepsToPossibleDanger: 2,
+        val: 20,
+    })
+    const v3: VValue = encodeIllegal({
+        stepsToPossibleDanger: 2,
+        val: 200,
+    })
+    const v4: VValue = 0
+    const v5: VValue = 10
+    const v6: VValue = -10
+
+    const list = [v1, v2, v3, v4, v5, v6]
+    list.sort(vValueCompare)
+    console.log(list)
+
 })

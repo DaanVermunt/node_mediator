@@ -1,14 +1,14 @@
 import { Solver } from './solver'
 import { Problem } from '../process/problem'
-import QFunction, {
+import {
     decodeIllegal,
     encodeIllegal,
     IllegalDecoded,
-    isIllegalQValue,
-    QValue } from './q-function'
-import { Action } from '../action/action'
+} from './q-function'
+import { Action, ActionHash } from '../action/action'
 import { State, StateHash } from '../state/state'
-import { isMState } from '../../mediator-model/state/m-state'
+import { getHCI, getT } from '../../mediator-model/state/m-state'
+import VFunction, { isIllegalVValue, isNumericVValue, VValue, vValueCompare } from './v-function'
 
 class ValueIteration implements Solver {
     constructor(
@@ -19,74 +19,154 @@ class ValueIteration implements Solver {
     ) {
     }
 
-    newQValue(qCurrent: QValue, qMax: (to: StateHash) => QValue, action: Action, state: State): QValue {
-        const { to, reward, numberOfSteps, hasPassedIllegal } = action.perform(state)
+    // checkIllegalQValue(qCurrent: QValue, qMaxVal: QValue, hasPassedIllegal: boolean, numberOfSteps: number):
+    // {illegal: boolean, illegalRes: QValue } {
+    // // TODO: how do we deal with the value inside the illegal state
+    //     // DO we have such a thing as prioritizing high possibilities
+    //     if (isIllegalQValue(qCurrent)) {
+    //         const qCurValIllObj = decodeIllegal(qCurrent)
+    //         const illegalRes = encodeIllegal({
+    //             stepsToPossibleDanger: Math.max(qCurValIllObj.stepsToPossibleDanger, numberOfSteps),
+    //             qval: 0,
+    //         })
+    //         return {
+    //             illegal: true,
+    //             illegalRes,
+    //         }
+    //     }
+    //
+    //     if (hasPassedIllegal) {
+    //         const illState: IllegalDecoded = {
+    //             stepsToPossibleDanger: numberOfSteps,
+    //             qval: qCurrent,
+    //         }
+    //
+    //         if (numberOfSteps <  this.timeOfES) {
+    //             return {
+    //                 illegal: true,
+    //                 illegalRes: encodeIllegal(illState),
+    //             }
+    //         }
+    //     }
+    //
+    //     if (isIllegalQValue(qMaxVal)) {
+    //         const qMaxValIllObj = decodeIllegal(qMaxVal)
+    //
+    //         const totalSteps = qMaxValIllObj.stepsToPossibleDanger + numberOfSteps
+    //
+    //         if (totalSteps < this.timeOfES) {
+    //             const illegalRes = encodeIllegal({
+    //                 stepsToPossibleDanger: qMaxValIllObj.stepsToPossibleDanger + numberOfSteps,
+    //                 qval: qCurrent,
+    //             })
+    //             return {
+    //                 illegal: true,
+    //                 illegalRes,
+    //             }
+    //         }
+    //     }
+    //     return { illegal: false, illegalRes: encodeIllegal(getNewIllegal()) }
+    // }
 
-        const qMaxVal = qMax(to.h())
+    // newQValue(qCurrent: QValue, qMax: (to: StateHash) => QValue, action: Action, state: State): QValue {
+    //     const { transProbs, reward, numberOfSteps, hasPassedIllegal } = action.perform(state)
+    //
+    //     const qMaxVal = qMax(Object.keys(transProbs)[0])
+    //
+    //     if (isMState(state) && state.time < 0) {
+    //         return 0
+    //     }
+    //
+    //     // TODO: How do we deal with the different lengths
+    //     const { illegal, illegalRes } = this.checkIllegalQValue(qCurrent, qMaxVal, hasPassedIllegal, numberOfSteps)
+    //
+    //     if(illegal) {
+    //         return illegalRes
+    //     }
+    //
+    //     // TODO: TURN TO VALUE ITERATION USING THE POWER OF TRANSITION PROBABILITIES INSTEAD OF Q-LEARNING
+    //     return qCurrent * Math.pow(this.gamma, numberOfSteps) + reward
+    // }
 
-        if (isMState(state) && state.time < 0) {
-            return 0
-        }
+    newValue(action: Action, state: State, vOld: VFunction) {
+        const { transProbs, expReward, numberOfSteps, hasPassedIllegal } = action.getExpReward(state, this.gamma)
 
-        // TODO: how do we deal with the value inside the illegal state
-        // DO we have such a thing as prioritizing high possibilities
-        if (isIllegalQValue(qCurrent)) {
-            const qCurValIllObj = decodeIllegal(qCurrent)
-            return encodeIllegal({
-                stepsToPossibleDanger: Math.max(qCurValIllObj.stepsToPossibleDanger, numberOfSteps),
-                qval: 0,
-            })
-        }
+        const oldVSum = Object.keys(transProbs)
+            .map((stateHash: StateHash) => {
+                const vs = vOld.get(stateHash)
+                if (isNumericVValue(vs)) {
+                    return { val: vs * transProbs[stateHash].prob, illegal: false, distanceToIllegal: Infinity }
+                }
+
+                const illegalVal = decodeIllegal(vs)
+                // GET steps to state
+                const targetT = getT(stateHash)
+                const curT = getT(stateHash)
+                const summedDist = illegalVal.stepsToPossibleDanger + targetT - curT
+
+                return { val: illegalVal.val * transProbs[stateHash].prob, illegal: true, distanceToIllegal: summedDist }
+            }).reduce((sum, val) => ({
+                    val: sum.val + val.val,
+                    illegal: sum.illegal || val.illegal,
+                    distanceToIllegal: Math.min(sum.distanceToIllegal, val.distanceToIllegal),
+                })
+                , { val: 0, illegal: false, distanceToIllegal: Infinity })
 
         if (hasPassedIllegal) {
             const illState: IllegalDecoded = {
                 stepsToPossibleDanger: numberOfSteps,
-                qval: qCurrent,
+                val: expReward + oldVSum.val,
             }
-
-            if (numberOfSteps <  this.timeOfES) {
-                return encodeIllegal(illState)
-            }
+            return encodeIllegal(illState)
         }
 
-        if (isIllegalQValue(qMaxVal)) {
-            const qMaxValIllObj = decodeIllegal(qMaxVal)
-
-            const totalSteps = qMaxValIllObj.stepsToPossibleDanger + numberOfSteps
-
-            if (totalSteps < this.timeOfES) {
-                return encodeIllegal({
-                    stepsToPossibleDanger: qMaxValIllObj.stepsToPossibleDanger + numberOfSteps,
-                    qval: qCurrent,
-                })
-            }
-        }
-
-        // TODO: TURN TO VALUE ITERATION USING THE POWER OF TRANSITION PROBABILITIES INSTEAD OF Q-LEARNING
-        return qCurrent * Math.pow(this.gamma, numberOfSteps) + reward
-    }
-
-    solve(p: Problem): QFunction {
-        const q = new QFunction(p)
-        let q2: null | QFunction = null
-        let n = 0
-        // for (let i = 0; i < this.n; i++) {
-        while ( (q2 === null || !q2.equals(q, this.epsilon)) && n < this.n) {
-            q2 = q.copy()
-            n = n + 1
-
-            Object.values(p.states).forEach(state => {
-                p.actions.forEach(action => {
-                    const qCurrent = q.get(state.h(), action.h())
-                    const val = this.newQValue(qCurrent, q.maxQValue, action, state)
-
-                    q.set(state.h(), action.h(), val)
-                })
+        if (oldVSum.illegal && oldVSum.distanceToIllegal < this.timeOfES) {
+            const illRes = encodeIllegal({
+                stepsToPossibleDanger: oldVSum.distanceToIllegal,
+                val: expReward + oldVSum.val,
             })
         }
 
+        return expReward + oldVSum.val
+    }
+
+    solve(p: Problem): VFunction {
+        const v = new VFunction(p)
+        let v2: null | VFunction = null
+        let n = 0
+        // for (let i = 0; i < this.n; i++) {
+        while ( (v2 === null || !v2.equals(v, this.epsilon)) && n < this.n) {
+            v2 = v.copy()
+            n = n + 1
+
+            Object.values(p.states).forEach(state => {
+                const vActions =  p.actions.map((action ): {val: VValue, action: ActionHash} => {
+                    const val = this.newValue(action, state, v2 as VFunction)
+
+                    return {
+                        val,
+                        action: action.h(),
+                    }
+                })
+
+                vActions.sort((a, b) => vValueCompare(a.val, b.val))
+                const maxAction = vActions[0]
+
+                v.setAction(state.h(), maxAction.action)
+                v.setValue(state.h(), maxAction.val)
+
+            })
+        }
+
+        // console.log(Object
+        //     .keys(v.vValues)
+        //     .filter(key => getT(key) < 1)
+        //     .filter(key => getHCI(key) === 0)
+        //     .map(key => `${key}, ${v.vValues[key]}`)
+        // )
+
         console.log(`solving took --  ${n}  -- time steps`)
-        return q
+        return v
     }
 }
 

@@ -5,9 +5,19 @@ import { sortMStates } from '../../helper/model/sort'
 import Option from '../../MDP/action/option'
 import MState, { AutonomousConfidence, HumanConfidence, LoA } from '../../mediator-model/state/m-state'
 import { OptionName } from '../../mediator-model/action/m-options'
+import VFunction from '../solver/v-function'
 
 export type Policy = (state: State) => Action
 export type PolicyVector = Record<StateHash, Action>
+
+export const policyFromVFunc = (vFunc: VFunction): PolicyVector => {
+    return Object
+        .keys(vFunc.actions)
+        .reduce((res, stHash) => ({
+            ...res,
+            [stHash]: vFunc.getAction(stHash),
+        }), {})
+}
 
 export const policyFromQFunc = (qFunc: QFunction): PolicyVector => {
     const policy = {} as PolicyVector

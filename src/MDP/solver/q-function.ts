@@ -4,10 +4,10 @@ import { Action, ActionHash, emergencyStop } from '../action/action'
 
 export interface IllegalDecoded {
     stepsToPossibleDanger: number
-    qval: number
+    val: number
 }
 
-export const getNewIllegal = (qval: number = 0, stepsToPossibleDanger: number = Infinity) => ({ qval, stepsToPossibleDanger })
+export const getNewIllegal = (qval: number = 0, stepsToPossibleDanger: number = Infinity) => ({ val: qval, stepsToPossibleDanger })
 
 export const encodeIllegal = (illState: IllegalDecoded): ILLEGALQvalue => JSON.stringify(illState)
 export const decodeIllegal = (illState: string): IllegalDecoded => JSON.parse(illState)
@@ -89,7 +89,7 @@ class QFunction {
                     const valObj = decodeIllegal(val)
                     const maxObj = decodeIllegal(max)
                     if (maxObj.stepsToPossibleDanger === valObj.stepsToPossibleDanger) {
-                        return maxObj.qval > valObj.qval ? max : val
+                        return maxObj.val > valObj.val ? max : val
                     } else {
                         return maxObj.stepsToPossibleDanger > valObj.stepsToPossibleDanger ? max : val
                     }

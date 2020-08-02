@@ -150,10 +150,23 @@ class MState implements State {
     }
 
     toString(): string {
-        return `hc:${this.humanConfidence}, hci: ${this.humanImpact}, loa: ${this.loa}, ac: ${this.autonomousConfidence}, t: ${this.time}`
+        return `hc: ${this.humanConfidence}, hci: ${this.humanImpact}, loa: ${this.loa}, ac: ${this.autonomousConfidence}, t: ${this.time}`
     }
 
 }
+
+const getFromStateHash = (stateHash: StateHash, index: number): number => {
+    const regex = /: -?\d+/g
+    const found = stateHash.match(regex)
+
+    if (found && found[index] !== undefined) {
+        return parseInt(found[index].substring(2), 10)
+    }
+    return -1
+}
+
+export const getT = (stateHash: StateHash): number => getFromStateHash(stateHash, 4)
+export const getHCI = (stateHash: StateHash): number => getFromStateHash(stateHash, 2)
 
 export const fromSimState = (simState: SimulationState): MState => {
     return new MState(getHCfromSimState(simState), simState.LoA, getACfromSimState(simState), 0, 0, simState.rewardSystem)

@@ -3,9 +3,9 @@ import { Action, ActionHash } from '../action/action'
 import { Problem } from './problem'
 import { Solver } from '../solver/solver'
 import ValueIteration from '../solver/value-iteration'
-import { policyFromQFunc, PolicyVector } from './policy'
-import QFunction from '../solver/q-function'
+import { policyFromVFunc, PolicyVector } from './policy'
 import { Process } from './process'
+import VFunction from '../solver/v-function'
 
 class MarkovDecisionProcess implements Process {
     constructor(
@@ -26,21 +26,22 @@ class MarkovDecisionProcess implements Process {
 
     private readonly problem: Problem
     private solver: Solver
-    private qFunction?: QFunction
+    private vFunction?: VFunction
     public policy?: PolicyVector
 
     getAction(): (Action | undefined) {
-        this.qFunction = this.solver.solve(this.problem)
-        this.policy = policyFromQFunc(this.qFunction)
+        this.vFunction = this.solver.solve(this.problem)
+        this.policy = policyFromVFunc(this.vFunction)
         return this.policy[this.curState.h()]
     }
 
-    public getQFunction(): QFunction {
-        if (this.qFunction) {
-            return this.qFunction
+    public getVFunction(): VFunction {
+        if (this.vFunction) {
+            return this.vFunction
         } else {
             throw Error('QFunction not init')
         }
+
     }
 
     public getPolicy(): PolicyVector {

@@ -1,6 +1,6 @@
 import { Process } from './process'
 import { State, StateHash } from '../state/state'
-import { Action, ActionHash, ActionRes, emergencyStop } from '../action/action'
+import { Action, ActionHash, ActionRes, ActionResPerform, emergencyStop } from '../action/action'
 import { Problem } from './problem'
 import { SolverType } from '../../argparser'
 
@@ -31,9 +31,9 @@ class HeuristicProcess implements Process {
             .reduce((res, action) => {
                 return {
                         ...res,
-                        [action.h()]: { res: action.perform(this.curState), act: action }
+                        [action.h()]: { res: action.perform(this.curState), act: action },
                     }
-                }, {} as Record<ActionHash, {res: ActionRes, act: Action}>)
+                }, {} as Record<ActionHash, {res: ActionResPerform, act: Action}>)
 
         if (expectedResults.upgrade && !expectedResults.upgrade.res.hasPassedIllegal) {
             return expectedResults.upgrade.act

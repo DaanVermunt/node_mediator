@@ -10,8 +10,6 @@ import { isEmergencyStop } from './MDP/action/action'
 import * as fs from 'fs'
 import { actionToArrow } from './MDP/process/policy'
 import HeuristicProcess from './MDP/process/heuristic-process'
-
-console.log('tete')
 const arg: Args = argparser.parseArgs()
 const d = new Date()
 console.log(`${d.getHours()}:${d.getMinutes()}:${d.getSeconds()}`)
