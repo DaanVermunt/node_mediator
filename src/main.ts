@@ -88,9 +88,9 @@ function mainLoop() {
         }
 
         if (isOption(action)) {
-            sim.performOption(action)
+            const stepsForOption = sim.performOption(action)
+            i = i + (stepsForOption - 1)
         } else {
-            // Do Action in Sim
             sim.performAction(action)
         }
 

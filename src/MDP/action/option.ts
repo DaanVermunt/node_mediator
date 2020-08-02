@@ -16,13 +16,9 @@ class Option implements Action {
     }
 
     getExpReward(from: State, discount: number): ActionRes {
-        // get action from policy
-        // get action transprobs for action
-
         if (!this.inInitSubset(from, this.name)) {
             return nullRes(from)
         }
-
 
         const results = this.traverse(from, 1)
 
@@ -38,16 +34,18 @@ class Option implements Action {
             [item]: { state: zeroState, prob: results[item].prob },
         }), {})
 
-        const { numberOfSteps, hasPassedIllegal } = Object.values(results).reduce((res: {numberOfSteps: number, hasPassedIllegal: boolean}, item) => {
-            if (item.isSafe) {
-                return res
-            }
-            return {
-                hasPassedIllegal: true,
-                numberOfSteps: Math.min(item.depth, res.numberOfSteps)
-            }
+        const { numberOfSteps, hasPassedIllegal } = Object
+            .values(results)
+            .reduce((res: {numberOfSteps: number, hasPassedIllegal: boolean}, item) => {
+                if (item.isSafe) {
+                    return res
+                }
+                return {
+                    hasPassedIllegal: true,
+                    numberOfSteps: Math.min(item.depth, res.numberOfSteps),
+                }
 
-        }, { numberOfSteps: 1e5, hasPassedIllegal: false })
+            }, { numberOfSteps: 1e5, hasPassedIllegal: false })
 
         return {
             reward,
@@ -62,10 +60,6 @@ class Option implements Action {
         const action = this.policy(from)
 
         const { transProbs, reward } = action.getExpReward(from, 0)
-
-        // if (this.name === 'wake_up' && Math.random() < .005) {
-        //     console.log(transProbs)
-        // }
 
         return Object.keys(transProbs).reduce((res, stateHash: StateHash) => {
             const to = transProbs[stateHash].state

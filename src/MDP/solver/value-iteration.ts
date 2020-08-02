@@ -7,7 +7,7 @@ import {
 } from './q-function'
 import { Action, ActionHash } from '../action/action'
 import { State, StateHash } from '../state/state'
-import { getAC, getHC, getHCI, getLoA, getT } from '../../mediator-model/state/m-state'
+import { fromStateHash, getAC, getHC, getHCI, getLoA, getT } from '../../mediator-model/state/m-state'
 import VFunction, { isIllegalVValue, isNumericVValue, VValue, vValueCompare } from './v-function'
 
 class ValueIteration implements Solver {
@@ -92,6 +92,7 @@ class ValueIteration implements Solver {
         const { transProbs, expReward, numberOfSteps, hasPassedIllegal } = action.getExpReward(state, this.gamma)
 
         const oldVSum = Object.keys(transProbs)
+            .filter(stateHash => transProbs[stateHash].prob > 0)
             .map((stateHash: StateHash) => {
                 const vs = vOld.get(stateHash)
                 if (isNumericVValue(vs)) {
@@ -101,7 +102,7 @@ class ValueIteration implements Solver {
                 const illegalVal = decodeIllegal(vs)
                 // GET steps to state
                 const targetT = getT(stateHash)
-                const curT = getT(stateHash)
+                const curT = getT(state.h())
                 const summedDist = illegalVal.stepsToPossibleDanger + targetT - curT
 
                 return { val: illegalVal.val * transProbs[stateHash].prob, illegal: true, distanceToIllegal: summedDist }
@@ -112,23 +113,22 @@ class ValueIteration implements Solver {
                 })
                 , { val: 0, illegal: false, distanceToIllegal: Infinity })
 
-        // if (!haspassedillegal && object.keys(transprobs).length === 0) {
-        //     console.log(action.h())
-        // }
-
         if (hasPassedIllegal) {
             const illState: IllegalDecoded = {
                 stepsToPossibleDanger: numberOfSteps,
-                val: expReward + oldVSum.val,
+                val: 0,
+                // val: expReward + oldVSum.val,
             }
             return encodeIllegal(illState)
         }
 
         if (oldVSum.illegal && oldVSum.distanceToIllegal < this.timeOfES) {
-            const illRes = encodeIllegal({
+            const illRes: IllegalDecoded = {
                 stepsToPossibleDanger: oldVSum.distanceToIllegal,
-                val: expReward + oldVSum.val,
-            })
+                // val: expReward + oldVSum.val,
+                val: 0,
+            }
+            return encodeIllegal(illRes)
         }
 
         return expReward + oldVSum.val
@@ -159,21 +159,18 @@ class ValueIteration implements Solver {
                 v.setAction(state.h(), maxAction.action)
                 v.setValue(state.h(), maxAction.val)
 
-                // if (getT(state.h()) < 5 && isNumericVValue(maxAction.val) && maxAction.val === 0) {
-                //     console.log(state.h(), maxAction)
-                // }
             })
         }
 
-        console.log(Object
-            .keys(v.vValues)
-            .filter(key => getT(key) < 3)
-            .filter(key => getLoA(key) === 0)
-            .filter(key => getHCI(key) === 0)
-            .filter(key => getAC(key) === 0)
-            .filter(key => getHC(key) === 2 || getHC(key) === 0)
-            .map(key => `${key}, ${v.vValues[key]}`),
-        )
+        // console.log(Object
+        //     .keys(v.vValues)
+        //     .filter(key => getT(key) < 3)
+        //     .filter(key => getLoA(key) === 0)
+        //     .filter(key => getHCI(key) === 0)
+        //     .filter(key => getAC(key) === 2)
+        //     .filter(key => getHC(key) === 3)
+        //     .map(key => `${key}, ${v.vValues[key]}`),
+        // )
 
         console.log(`solving took --  ${n}  -- time steps`)
         return v

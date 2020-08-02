@@ -105,7 +105,7 @@ class Simulation {
         this.curLoA = this.context.performAction(action, this.curLoA, this.t, impacts)
     }
 
-    performOption(option: Option): void {
+    performOption(option: Option): number {
         let done = false
         let cur: MState | null = null
         let to: MState | null = null
@@ -120,8 +120,9 @@ class Simulation {
             attempts = attempts + 1
 
             done = option.finalizeTransition(cur, to) || attempts >= option.attempts
-            // console.log(attempts)
         }
+
+        return attempts
     }
 
     getTT(factorName: string, futureScope: number, t: number = this.t): number {

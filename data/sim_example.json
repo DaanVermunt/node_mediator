@@ -2,7 +2,7 @@
   "description": "Experiment 3, Scenario: Simple scenario. Showcases the min automation reward system.",
   "startLoa": 0,
   "horizon": 10,
-  "timeOfES": 3,
+  "timeOfES": 5,
   "totalT": 30,
   "alActionParams": {
     "up": {

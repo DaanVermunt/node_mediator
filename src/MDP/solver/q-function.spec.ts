@@ -82,7 +82,7 @@ test('vValue compare', () => {
         val: 20,
     })
     const v3: VValue = encodeIllegal({
-        stepsToPossibleDanger: 2,
+        stepsToPossibleDanger: 3,
         val: 200,
     })
     const v4: VValue = 0

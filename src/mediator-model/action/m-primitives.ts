@@ -33,7 +33,6 @@ export const getTransFunction = (simState: SimulationState, maxTime: number) => 
                 simState.context.resetImpactsForFactor(imp.effectFactor)
             })
 
-            // TODO: is there an argument for negative HCI
             const newHCI = Math.max(newHCWithAction - oldHC, 0)
 
             impactCache[primName][i] = { hc: newHCWithAction, ac: newACWithAction, hci: newHCI }
@@ -64,11 +63,13 @@ export const getTransFunction = (simState: SimulationState, maxTime: number) => 
                 break
 
             case 'hc_up':
-                // TODO under what conditions can we do this?
-                // TODO is there a max?
-                // TODO Can we accumulate?
-                const nextState = new MState(from.humanConfidence, from.loa, newAC, from.time + 1, newHCI, from.rewardSystem)
-                trans[nextState.h()] = trans[nextState.h()] ? trans[nextState.h()] + 1 : 1
+                if (newHCI > 0) {
+                    const nextState = new MState(from.humanConfidence, from.loa, newAC, from.time + 1, newHCI, from.rewardSystem)
+                    trans[nextState.h()] = trans[nextState.h()] ? trans[nextState.h()] + 1 : 1
+                } else {
+                    const nextstate = new MState(newHC, from.loa, newAC, from.time + 1, 0, from.rewardSystem)
+                    trans[nextstate.h()] = trans[nextstate.h()] ? trans[nextstate.h()] + 1 : 1
+                }
                 break
 
             case 'loa_down':
