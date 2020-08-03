@@ -10,7 +10,6 @@ import { isEmergencyStop } from './MDP/action/action'
 import * as fs from 'fs'
 import { actionToArrow } from './MDP/process/policy'
 import HeuristicProcess from './MDP/process/heuristic-process'
-
 const arg: Args = argparser.parseArgs()
 const d = new Date()
 console.log(`${d.getHours()}:${d.getMinutes()}:${d.getSeconds()}`)
@@ -44,6 +43,8 @@ function mainLoop() {
     const horizon = solverType === 'heuristic' ? 4 : (sim.horizon || 20)
     let simState = sim.getSimState(horizon)
 
+    const timeOfES  = simState.timeOfES
+
     const mStates = createMStates(horizon, simState.rewardSystem)
 
     for (let i = 0; i < nrSteps; i++) {
@@ -55,14 +56,14 @@ function mainLoop() {
 
         // Get Opt Action
         const process = solverType === 'mdp' ?
-                new MarkovDecisionProcess(mStates, Object.values(options), curMState, { gamma: .97, epsilon: 1, n: 500 }) :
+                new MarkovDecisionProcess(mStates, Object.values(options), curMState, { gamma: .97, epsilon: .1, n: 500, timeOfES }) :
                 new HeuristicProcess(mStates, Object.values(options), curMState, solverType)
         const action = process.getAction()
 
         // Also compute other possible actions
         const alternativeActions = { actionHeuristic: '', actionMDP: '' }
         if (solverType === 'passive') {
-            const mdp = new MarkovDecisionProcess(mStates, Object.values(options), curMState, { gamma: .99, epsilon: 5, n: 100 })
+            const mdp = new MarkovDecisionProcess(mStates, Object.values(options), curMState, { gamma: .99, epsilon: 5, n: 100, timeOfES: 5 })
             const mdpAct = mdp.getAction()
             alternativeActions.actionMDP = mdpAct ? mdpAct.name : 'no_action'
 
@@ -87,9 +88,9 @@ function mainLoop() {
         }
 
         if (isOption(action)) {
-            sim.performOption(action)
+            const stepsForOption = sim.performOption(action)
+            i = i + (stepsForOption - 1)
         } else {
-            // Do Action in Sim
             sim.performAction(action)
         }
 
@@ -112,7 +113,8 @@ function mainLoop() {
         })
     }
 
-    const outFolder = `${arg.outputFolder}/${solverType}`
+    const outFolder = arg.i > 0 ?  `${arg.outputFolder}/${solverType}/${arg.i}` : `${arg.outputFolder}/${solverType}`
+    // const outFolder =`${arg.outputFolder}/${solverType}`
     console.log(`Finished sim for ${arg.inputFile}, writing output`)
     fs.mkdirSync(`./data/out/${outFolder}`, { recursive: true })
     writeTTHistory(TTHistory, outFolder)

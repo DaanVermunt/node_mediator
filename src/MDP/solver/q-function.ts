@@ -2,11 +2,31 @@ import { Problem } from '../process/problem'
 import { StateHash } from '../state/state'
 import { Action, ActionHash, emergencyStop } from '../action/action'
 
-export const ILLEGAL = 'illegal'
-export type QValue = number | typeof ILLEGAL
+export interface IllegalDecoded {
+    stepsToPossibleDanger: number
+    val: number
+}
+
+export const getNewIllegal = (qval: number = 0, stepsToPossibleDanger: number = Infinity) => ({ val: qval, stepsToPossibleDanger })
+
+export const encodeIllegal = (illState: IllegalDecoded): ILLEGALQvalue => JSON.stringify(illState)
+export const decodeIllegal = (illState: string): IllegalDecoded => JSON.parse(illState)
+
+export type ILLEGALQvalue = string
+export type QValue = number | ILLEGALQvalue
 
 export const isNumericQValue = (qval: QValue): qval is number => {
-    return qval !== 'illegal'
+    return !(typeof qval === 'string')
+}
+
+export const isIllegalQValue = (qval: QValue): qval is ILLEGALQvalue => {
+    if (typeof qval === 'string') {
+        const illState = decodeIllegal(qval)
+        if ('stepsToPossibleDanger' in illState) {
+            return true
+        }
+    }
+    return false
 }
 
 export const formatQValue = (val: QValue): string => {
@@ -48,12 +68,38 @@ class QFunction {
     }
 
     maxQValue(state: StateHash): QValue {
+        // TODO: figure what is the max illegal value
         return Object.values(this.qValues[state])
-            .reduce((max, val) => val === ILLEGAL || max > val ? max : val, ILLEGAL)
+            .reduce((max, val) => {
+                // If max numeric
+                if (isNumericQValue(max)) {
+                    if (isNumericQValue(val)) {
+                        // If max and value numeric take max value
+                        return Math.max(max, val)
+                    } else {
+                        // Otherwise max is higher than illegal
+                        return max
+                    }
+                }
+                if (isNumericQValue(val)) {
+                    // If val is numeric and max is not val is higher
+                    return val
+                } else {
+                    // IF both are illegal
+                    const valObj = decodeIllegal(val)
+                    const maxObj = decodeIllegal(max)
+                    if (maxObj.stepsToPossibleDanger === valObj.stepsToPossibleDanger) {
+                        return maxObj.val > valObj.val ? max : val
+                    } else {
+                        return maxObj.stepsToPossibleDanger > valObj.stepsToPossibleDanger ? max : val
+                    }
+                }
+            }, encodeIllegal(getNewIllegal(-Infinity, 0)))
     }
 
     getMaxAction(state: StateHash): Action {
-        if (this.maxQValue(state) === ILLEGAL) {
+        // console.log(state, this.maxQValue(state))
+        if (isIllegalQValue(this.maxQValue(state))) {
             return emergencyStop
         }
 
@@ -61,7 +107,8 @@ class QFunction {
             const maxQ = this.get(state, maxAction.h())
             const actQ = this.get(state, action.h())
 
-            const res = actQ === ILLEGAL || maxQ > actQ ? maxAction : action
+            // TODO: Deal with this
+            const res = isIllegalQValue(actQ) || maxQ > actQ ? maxAction : action
 
             return res
         })
@@ -75,7 +122,6 @@ class QFunction {
                     const a = this.qValues[state.h()][action.h()]
                     const b = other.qValues[state.h()][action.h()]
                     if (isNumericQValue(a) && isNumericQValue(b)) {
-
                         if (Math.abs(b - a) > epsilon) {
                             throw new Error()
                         }

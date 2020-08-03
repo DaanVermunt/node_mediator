@@ -1,6 +1,7 @@
 import { State, StateHash } from '../state/state'
-import { Action, ActionRes, nullRes } from './action'
+import { Action, ActionRes, ActionResPerform, nullRes, nullResPerform } from './action'
 import { PrimitiveName } from '../../mediator-model/action/m-primitives'
+import { getAC, getHC, getHCI, getLoA, getT } from '../../mediator-model/state/m-state'
 
 class Primitive implements Action {
     constructor(
@@ -12,7 +13,32 @@ class Primitive implements Action {
     ) {
     }
 
-    public perform(from: State): ActionRes {
+    getExpReward(from: State, discount: number): ActionRes {
+        const transProbs = this.getTransistions(this.name, from)
+
+        const transProbsWithState = Object.keys(transProbs).reduce((res, stateHash) => (
+            {
+                ...res,
+                [stateHash]: { state: this.states[stateHash], prob: transProbs[stateHash] },
+            }), {})
+
+        const reward = Object.keys(transProbs).reduce((res, stateHash) => (
+            {
+                ...res,
+                [stateHash]: this.states[stateHash].reward() - this.cost,
+            }), {})
+
+        return {
+            reward,
+            transProbs: transProbsWithState,
+
+            expReward: 0,
+            numberOfSteps: 1,
+            hasPassedIllegal: false,
+        }
+    }
+
+    public perform(from: State): ActionResPerform {
         // const transitions: Record<StateHash, number> = this.transitionMatrix[from.h()]
         const transitions: Record<StateHash, number> = this.getTransistions(this.name, from)
 
@@ -20,7 +46,7 @@ class Primitive implements Action {
             Object.keys(transitions).length === 0 ||
             Object.values(transitions).reduce((sum, val) => sum + val) <= 0
         ) {
-           return nullRes(from)
+           return nullResPerform(from)
         }
 
         const totalProb = Object.values(transitions).reduce((sum, val) => sum + val)
@@ -41,7 +67,7 @@ class Primitive implements Action {
             .find(transkeyVal => draw <= transkeyVal.val)
 
         if (!resKey) {
-            return nullRes(from)
+            return nullResPerform(from)
         }
         const resState = this.states[resKey.key]
 

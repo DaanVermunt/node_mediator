@@ -1,5 +1,5 @@
 import Option from '../../MDP/action/option'
-import MState, { HumanConfidence, LoA, toMState } from '../state/m-state'
+import MState, { LoA, toMState } from '../state/m-state'
 import { getMPrimitives, PrimitiveName } from './m-primitives'
 import { SimulationState } from '../../simulation/simulation-state'
 import { State } from '../../MDP/state/state'
@@ -68,7 +68,7 @@ export const getMOptions = (mStates: MState[], simState: SimulationState, nrStep
     const upgradeOption = new Option(
         getIsInInitSubset(),
         getPolicyFunction('upgrade', primitives),
-        1,
+        simState.loaActionImplementations.up.numberOfAttempts,
         (from: State, to: State) => isMState(from) && isMState(to) ? from.loa + 1 === to.loa : logWrongType(true),
         'upgrade',
     )
@@ -76,7 +76,7 @@ export const getMOptions = (mStates: MState[], simState: SimulationState, nrStep
     const downgradeOption = new Option(
         getIsInInitSubset(),
         getPolicyFunction('downgrade', primitives),
-        1,
+        simState.loaActionImplementations.down.numberOfAttempts,
         (from: State, to: State) => isMState(from) && isMState(to) ? from.loa - 1 === to.loa : logWrongType(true),
         'downgrade',
     )

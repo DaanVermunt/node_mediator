@@ -1,6 +1,6 @@
 import { Problem } from '../process/problem'
-import QFunction from './q-function'
+import VFunction from './v-function'
 
 export interface Solver {
-    solve(p: Problem): QFunction
+    solve(p: Problem): VFunction
 }

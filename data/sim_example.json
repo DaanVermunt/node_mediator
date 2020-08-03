@@ -1,104 +1,111 @@
 {
-  "actionEffects": [
-    {
-      "primitive_name": "hc_up",
-      "on_factor": "D_LoA*",
-      "diff": "+.1",
-      "std": 0.2
+  "description": "Experiment 5, Scenario: Different types of impact. Two types of Human Confidence degradation, one we can solve and one we cannot",
+  "totalT": 51,
+  "horizon": 10,
+  "timeOfES": 5,
+  "alActionParams": {
+    "up": {
+      "numberOfAttempts": 1,
+      "successOfPrimitive": 1
     },
-    {
-      "primitive_name": "do_nothing",
-      "on_factor": "*_LoA*",
-      "diff": "-.1",
-      "std": 2
-    },
-    {
-      "primitive_name": "hc_up",
-      "on_factor": "sleepiness",
-      "diff": "*1.1",
-      "std": 0
+    "down": {
+      "numberOfAttempts": 1,
+      "successOfPrimitive": 1
     }
-  ],
+  },
+  "rewardSystem": "min_automation",
   "factors": [
     {
       "name": "D_LoA0",
-      "value": "${dipp}",
+      "value": "${HC} > .8 ? 1 : 0",
       "type": "modeled",
-      "dependence": "endogenous",
-      "error": 0.1
+      "dependence": "endogenous"
     },
     {
       "name": "D_LoA1",
-      "value": "${dipp}",
+      "value": "${HC} > .6 ? 1 : 0",
       "type": "modeled",
-      "dependence": "endogenous",
-      "error": 0.1
+      "dependence": "endogenous"
     },
     {
       "name": "D_LoA2",
-      "value": "${dipp}",
+      "value": "${HC} > .2 ? 1 : 0",
       "type": "modeled",
-      "dependence": "endogenous",
-      "error": 0.0
+      "dependence": "endogenous"
+    },
+    {
+      "name": "D_LoA3",
+      "value": "${HC} > .1 ? 1 : 0",
+      "type": "modeled",
+      "dependence": "endogenous"
     },
 
     {
       "name": "A_LoA0",
-      "value": 0,
-      "type": "static",
-      "dependence": "endogenous",
-      "error": 0.0
+      "value": "${AC} > 0 ? 1 : 0",
+      "type": "modeled",
+      "dependence": "endogenous"
     },
     {
       "name": "A_LoA1",
-      "value": "${dipp}",
+      "value": "${AC} > .5 ? 1 : 0",
       "type": "modeled",
-      "dependence": "endogenous",
-      "error": 0.1
+      "dependence": "endogenous"
     },
     {
       "name": "A_LoA2",
-      "value": "${dipp}",
+      "value": "${AC} > .7 ? 1 : 0",
       "type": "modeled",
-      "dependence": "endogenous",
-      "error": 0.1
+      "dependence": "endogenous"
+    },
+    {
+      "name": "A_LoA3",
+      "value": "${AC} > .9 ? 1 : 0",
+      "type": "modeled",
+      "dependence": "endogenous"
     },
 
     {
-      "name": "sin",
-      "value": "Math.sin(${_t} * .1)",
+      "name": "HC",
+      "value": "1 - ${distraction} - ${badRoad}",
       "type": "modeled",
-      "dependence": "exogenous",
-      "error": 0
+      "dependence": "endogenous"
     },
     {
-      "name": "dipp",
-      "value": "${_t} < 50 && ${_t} > 40 ? 0.5 : 1",
+      "name": "AC",
+      "value": "(0 <= ${_t} && ${_t} < 18) || (39 <= ${_t} && ${_t} < 45) ? .8 - ${ACDegrade} : 0",
       "type": "modeled",
-      "dependence": "exogenous",
-      "error": 0
+      "dependence": "endogenous"
     },
     {
-      "name": "dipp_with_slope",
-      "value": "Math.max(0, Math.min((${_t} - 50) * .1 , 1))",
+      "name": "ACDegrade",
+      "value": "(15 <= ${_t} && ${_t} < 18) ? .2 : 0",
       "type": "modeled",
-      "dependence": "exogenous",
-      "error": 0
+      "dependence": "exogenous"
     },
     {
-      "name": "sleepiness",
-      "value": "${-1} * .99",
-      "start_value": 1,
+      "name": "badRoad",
+      "value": "${_t} === 42 ? .3 : ${-1}",
+      "start_value": 0.00,
       "type": "modeled",
-      "dependence": "exogenous",
-      "error": 0.5
+      "dependence": "exogenous"
     },
     {
       "name": "distraction",
-      "value": "${dipp}",
+      "value": "${_t} === 5 ? .3 : ${-1}",
+      "start_value": 0.00,
       "type": "modeled",
-      "dependence": "endogenous",
-      "error": 0.5
+      "dependence": "exogenous"
+    }
+  ],
+  "actionEffects": [
+    {
+      "primitive_name": "hc_up",
+      "name": "alarmAction",
+      "on_factor": "distraction",
+      "diff": -0.5,
+      "success_chance": 0.7,
+      "std": 0.0
     }
   ]
 }

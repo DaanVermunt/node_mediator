@@ -3,6 +3,7 @@ import { Action } from '../MDP/action/action'
 import { LoA } from '../mediator-model/state/m-state'
 import { PrimitiveName } from '../mediator-model/action/m-primitives'
 import { ActionImpact } from './actionImpact'
+import { loaActionDefault, LoaParams } from './scenario'
 
 class Context {
     factors: Record<FactorHash, Factor>
@@ -47,10 +48,16 @@ class Context {
         throw Error('Factor does not exist')
     }
 
-    performAction(action?: Action, curLoA: LoA = LoA.LoA0, t: number = 0, impact: ActionImpact[] = []): LoA {
+    performAction(action?: Action,
+                  curLoA: LoA = LoA.LoA0,
+                  t: number = 0,
+                  impact: ActionImpact[] = [],
+                  loaActionImplementations: LoaParams = loaActionDefault,
+    ): LoA {
         Object.values(this.factors).forEach(factor => {
             impact
                 .filter(imp => imp.effectFactor === factor.name)
+                .filter(imp => Math.random() < imp.successChance)
                 .forEach(imp => {
                     factor.addImpact(imp.meanEffect, t)
                 })
@@ -79,11 +86,12 @@ class Context {
 
             const actionName = action.name as PrimitiveName
 
+            const draw = Math.random()
             if (actionName === 'loa_up') {
-                return loaUp[curLoA]
+                return draw < loaActionImplementations.up.successOfPrimitive ? loaUp[curLoA] : curLoA
             }
             if (actionName === 'loa_down') {
-                return loaDown[curLoA]
+                return draw < loaActionImplementations.down.successOfPrimitive ? loaDown[curLoA] : curLoA
             }
         }
 

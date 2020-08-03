@@ -6,7 +6,7 @@ import { readFileSync } from 'fs'
 import { Prediction } from './factor'
 import { ActionImpact, ActionImpactInput } from './actionImpact'
 import Option from '../MDP/action/option'
-import { RewardSystem, Scenario } from './scenario'
+import { AlActionParams, loaActionDefault, LoaParams, RewardSystem, Scenario } from './scenario'
 
 export const tap = <T>(f: (x: T) => T) => {
     return (x: T) => {
@@ -76,6 +76,8 @@ class Simulation {
     impacts: ActionImpact[]
     horizon: number
     rewardSystem: RewardSystem
+    timeOfES: number
+    loaActionImplementations: LoaParams
 
     constructor(
         private readonly scenarioFilePath: string,
@@ -83,6 +85,7 @@ class Simulation {
         const scenarioFile = readFileSync(scenarioFilePath, { encoding: 'utf8' })
         const scenario: Scenario = JSON.parse(scenarioFile)
         this.totalT = scenario.totalT
+
         // Load Scenario
         // Check for valid factors
         this.context = new Context(scenario.factors)
@@ -92,6 +95,8 @@ class Simulation {
         this.impacts = scenario.actionEffects ? this.parseImpacts(scenario.actionEffects) : []
         this.horizon = scenario.horizon || 20
         this.rewardSystem = scenario.rewardSystem || 'max_automation'
+        this.timeOfES = scenario.timeOfES || 5
+        this.loaActionImplementations = scenario.alActionParams || loaActionDefault
     }
 
     performAction(action?: Action): void {
@@ -100,7 +105,7 @@ class Simulation {
         this.curLoA = this.context.performAction(action, this.curLoA, this.t, impacts)
     }
 
-    performOption(option: Option): void {
+    performOption(option: Option): number {
         let done = false
         let cur: MState | null = null
         let to: MState | null = null
@@ -116,6 +121,8 @@ class Simulation {
 
             done = option.finalizeTransition(cur, to) || attempts >= option.attempts
         }
+
+        return attempts
     }
 
     getTT(factorName: string, futureScope: number, t: number = this.t): number {
@@ -145,6 +152,8 @@ class Simulation {
             impacts: this.impacts,
             futureScope,
             rewardSystem: this.rewardSystem,
+            timeOfES: this.timeOfES,
+            loaActionImplementations: this.loaActionImplementations,
         }
     }
 
@@ -153,6 +162,7 @@ class Simulation {
             effectFactor: ae.on_factor,
             effectFrom: ae.primitive_name,
             meanEffect: ae.diff,
+            successChance: ae.success_chance || 1,
             std: ae.std,
             name: ae.name,
         }))
