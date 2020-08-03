@@ -8,14 +8,17 @@ scenariosKees = scenarios[75:97]
 
 for scenario in scenariosKees:
     for i in [0, 1]:
-        a = subprocess.Popen([f'ts-node ./src/main.ts -i {scenarios}.json -o {scenario} -s mdp -n {i + 1}'])
-        b = subprocess.Popen([f'ts-node ./src/main.ts -i {scenarios}.json -o {scenario} -s mdp -n {i + 2}'])
-        c = subprocess.Popen([f'ts-node ./src/main.ts -i {scenarios}.json -o {scenario} -s mdp -n {i + 3}'])
-        d = subprocess.Popen([f'ts-node ./src/main.ts -i {scenarios}.json -o {scenario} -s mdp -n {i + 4}'])
-        e = subprocess.Popen([f'ts-node ./src/main.ts -i {scenarios}.json -o {scenario} -s mdp -n {i + 5}'])
+        print(f'ts-node ./src/main.ts -i {scenario}.json -o {scenario} -s mdp -n {i + 1}')
+        break
+        a = subprocess.Popen([f'ts-node ./src/main.ts -i ./data/scenarios/{scenario}.json -o {scenario} -s mdp -n {i + 1}'])
+        b = subprocess.Popen([f'ts-node ./src/main.ts -i ./data/scenarios/{scenario}.json -o {scenario} -s mdp -n {i + 2}'])
+        c = subprocess.Popen([f'ts-node ./src/main.ts -i ./data/scenarios/{scenario}.json -o {scenario} -s mdp -n {i + 3}'])
+        d = subprocess.Popen([f'ts-node ./src/main.ts -i ./data/scenarios/{scenario}.json -o {scenario} -s mdp -n {i + 4}'])
+        e = subprocess.Popen([f'ts-node ./src/main.ts -i ./data/scenarios/{scenario}.json -o {scenario} -s mdp -n {i + 5}'])
 
         a.wait()
         b.wait()
         c.wait()
         d.wait()
         e.wait()
+    break
