@@ -39,11 +39,12 @@ argparser.addArgument(
         type: 'string',
         action: 'store',
         dest: 'solver',
-        required: true,
+        required: false,
         defaultValue: 'mdp',
         choices: solverOptions,
     },
 )
+
 argparser.addArgument(
     ['-n'],
     {
