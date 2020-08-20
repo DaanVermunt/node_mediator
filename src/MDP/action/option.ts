@@ -61,7 +61,7 @@ class Option implements Action {
             expReward,
             transProbs,
             numberOfSteps,
-            hasPassedIllegal,
+            hasPassedIllegal: Object.values(results).length === 0 || hasPassedIllegal,
         }
     }
 

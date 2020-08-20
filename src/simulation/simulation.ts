@@ -102,7 +102,7 @@ class Simulation {
     performAction(action?: Action): void {
         this.t = this.t + 1
         const impacts = this.impacts.filter(impact => action && impact.effectFrom === action.name)
-        this.curLoA = this.context.performAction(action, this.curLoA, this.t, impacts)
+        this.curLoA = this.context.performAction(action, this.curLoA, this.t, impacts, this.loaActionImplementations)
     }
 
     performOption(option: Option): number {

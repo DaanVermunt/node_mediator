@@ -2,5 +2,5 @@
   "watch": ["src"],
   "ignore": ["*.spec.ts"],
   "ext": "ts",
-  "exec": "ts-node ./src/main.ts -i ./data/scenarios/scenario7_go_up_for_profit.json -o test -s mdp -n 10"
+  "exec": "ts-node ./src/main.ts -i ./data/scenarios/scenario7_go_up_for_profit_1_5_1_0.4.json -o test -s heuristic_max_automation -n 10"
 }

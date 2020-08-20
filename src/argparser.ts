@@ -1,6 +1,6 @@
 import { ArgumentParser } from 'argparse'
 
-export type SolverType = 'heuristic' | 'mdp' | 'passive'
+export type SolverType = 'mdp' | 'passive' | 'heuristic_max_automation' | 'heuristic_min_automation' | 'heuristic_min_transitions' | 'heuristic_optimal_driver'
 
 export interface Args {
     inputFile: string
@@ -31,7 +31,7 @@ argparser.addArgument(
     },
 )
 
-const solverOptions: SolverType[] = ['mdp', 'heuristic', 'passive']
+const solverOptions: SolverType[] = ['mdp', 'passive', 'heuristic_max_automation', 'heuristic_min_automation', 'heuristic_min_transitions', 'heuristic_optimal_driver']
 argparser.addArgument(
     ['-s'],
     {

@@ -1,0 +1,100 @@
+{
+  "description": "Experiment 3, Scenario: Simple scenario. Showcases the min automation reward system.",
+  "startLoa": 0,
+  "timeToES": 5,
+  "totalT": 30,
+  "rewardSystem": "min_automation",
+  "factors": [
+    {
+      "name": "D_LoA0",
+      "value": "${HC} > .8 ? 1 : 0",
+      "type": "modeled",
+      "dependence": "endogenous"
+    },
+    {
+      "name": "D_LoA1",
+      "value": "${HC} > .6 ? 1 : 0",
+      "type": "modeled",
+      "dependence": "endogenous"
+    },
+    {
+      "name": "D_LoA2",
+      "value": "${HC} > .2 ? 1 : 0",
+      "type": "modeled",
+      "dependence": "endogenous"
+    },
+    {
+      "name": "D_LoA3",
+      "value": "${HC} > .1 ? 1 : 0",
+      "type": "modeled",
+      "dependence": "endogenous"
+    },
+
+    {
+      "name": "A_LoA0",
+      "value": "${AC} > 0 ? 1 : 0",
+      "type": "modeled",
+      "dependence": "endogenous"
+    },
+    {
+      "name": "A_LoA1",
+      "value": "${AC} > .5 ? 1 : 0",
+      "type": "modeled",
+      "dependence": "endogenous"
+    },
+    {
+      "name": "A_LoA2",
+      "value": "${AC} > .7 ? 1 : 0",
+      "type": "modeled",
+      "dependence": "endogenous"
+    },
+    {
+      "name": "A_LoA3",
+      "value": "${AC} > .9 ? 1 : 0",
+      "type": "modeled",
+      "dependence": "endogenous"
+    },
+
+    {
+      "name": "HC",
+      "value": "1 - ${dip9} - ${dip12}",
+      "type": "modeled",
+      "dependence": "exogenous"
+    },
+    {
+      "name": "AC",
+      "value": ".8 - ${dip18} - ${dip21}",
+      "type": "modeled",
+      "dependence": "exogenous"
+    },
+
+    {
+      "name": "dip9",
+      "value": "9 <= ${_t} && ${_t} < 12 ? .7 : 0",
+      "type": "modeled",
+      "dependence": "exogenous"
+    },
+    {
+      "name": "dip12",
+      "value": "12 <= ${_t} && ${_t} < 15 ? .3 : 0",
+      "type": "modeled",
+      "dependence": "exogenous"
+    },
+
+    {
+      "name": "dip18",
+      "value": "18 <= ${_t} && ${_t} < 21 ? .2 : 0",
+      "type": "modeled",
+      "dependence": "exogenous"
+    },
+    {
+      "name": "dip21",
+      "value": "21 <= ${_t} && ${_t} < 24 ? .5 : 0",
+      "type": "modeled",
+      "dependence": "exogenous"
+    }
+
+  ],
+  "actionEffects": [
+  ]
+}

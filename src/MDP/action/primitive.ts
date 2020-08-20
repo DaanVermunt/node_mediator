@@ -1,7 +1,7 @@
 import { State, StateHash } from '../state/state'
 import { Action, ActionRes, ActionResPerform, nullRes, nullResPerform } from './action'
 import { PrimitiveName } from '../../mediator-model/action/m-primitives'
-import { getAC, getHC, getHCI, getLoA, getT } from '../../mediator-model/state/m-state'
+import { fromStateHash } from '../../mediator-model/state/m-state'
 
 class Primitive implements Action {
     constructor(
@@ -28,13 +28,19 @@ class Primitive implements Action {
                 [stateHash]: this.states[stateHash].reward() - this.cost,
             }), {})
 
+        const hasPassedIllegal = Object.keys(transProbs).length === 0 || Object.keys(transProbs)
+            .filter( stateHash => transProbs[stateHash] > 0)
+            .reduce((res: boolean, stateHash) => {
+                return !fromStateHash(stateHash).isSafe() || res
+            }, false)
+
         return {
             reward,
             transProbs: transProbsWithState,
 
             expReward: 0,
             numberOfSteps: 1,
-            hasPassedIllegal: false,
+            hasPassedIllegal,
         }
     }
 

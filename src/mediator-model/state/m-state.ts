@@ -188,7 +188,7 @@ export const fromStateHash = (st: StateHash): MState => {
     const t = parseInt(tString, 10)
 
     const ac = getElement(st, 'ac:')
-    const hc = getElement(st, 'hc')
+    const hc = getElement(st, 'hc:')
     const loa = getElement(st, 'loa:')
     const hci = getElement(st, 'hci:')
     return new MState(hc, loa, ac, t, hci)

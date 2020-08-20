@@ -1,7 +1,7 @@
 import { argparser, Args, SolverType } from './argparser'
 import Simulation, { getACfromSimState, getHCfromSimState } from './simulation/simulation'
 import MarkovDecisionProcess from './MDP/process/markov-decision-process'
-import { AutonomousConfidence, fromSimState, fromStateHash, HumanConfidence, LoA } from './mediator-model/state/m-state'
+import { AutonomousConfidence, fromSimState, HumanConfidence, LoA } from './mediator-model/state/m-state'
 import { createMStates } from './helper/model/init-states'
 import { getMOptions, isOption, OptionName } from './mediator-model/action/m-options'
 import { formatNumber, TimeTos } from './output/console-out'
@@ -10,6 +10,7 @@ import { isEmergencyStop } from './MDP/action/action'
 import * as fs from 'fs'
 import { actionToArrow } from './MDP/process/policy'
 import HeuristicProcess from './MDP/process/heuristic-process'
+import { getMPrimitives } from './mediator-model/action/m-primitives'
 const arg: Args = argparser.parseArgs()
 const d = new Date()
 console.log(`${d.getHours()}:${d.getMinutes()}:${d.getSeconds()}`)
@@ -40,7 +41,7 @@ function mainLoop() {
 
     const nrSteps = sim.totalT
 
-    const horizon = solverType === 'heuristic' ? 4 : (sim.horizon || 20)
+    const horizon = solverType.startsWith('heuristic') ? 6 : (sim.horizon || 20)
     let simState = sim.getSimState(horizon)
 
     const timeOfES  = simState.timeOfES
@@ -51,26 +52,33 @@ function mainLoop() {
         // Compute MDPState
         const curMState = fromSimState(simState)
 
-        // Compute Trans probs
-        const options = getMOptions(mStates, simState, horizon)
+        let process
 
-        // Get Opt Action
-        const process = solverType === 'mdp' ?
-                new MarkovDecisionProcess(mStates, Object.values(options), curMState, { gamma: .97, epsilon: .1, n: 500, timeOfES }) :
-                new HeuristicProcess(mStates, Object.values(options), curMState, solverType)
+        if (solverType === 'mdp') {
+            // Compute Trans probs
+            const options = getMOptions(mStates, simState, horizon)
+            // Get Opt Action
+            process = new MarkovDecisionProcess(mStates, Object.values(options), curMState, { gamma: .97, epsilon: .1, n: 500, timeOfES })
+        } else {
+            const prims = getMPrimitives(mStates, simState, horizon)
+            process = new HeuristicProcess(mStates, Object.values(prims), curMState, solverType)
+        }
         const action = process.getAction()
 
         // Also compute other possible actions
         const alternativeActions = { actionHeuristic: '', actionMDP: '' }
-        if (solverType === 'passive') {
-            const mdp = new MarkovDecisionProcess(mStates, Object.values(options), curMState, { gamma: .99, epsilon: 5, n: 100, timeOfES: 5 })
-            const mdpAct = mdp.getAction()
-            alternativeActions.actionMDP = mdpAct ? mdpAct.name : 'no_action'
 
-            const heuristicProcess = new HeuristicProcess(mStates, Object.values(options), curMState, solverType)
-            const heurAct = heuristicProcess.getAction()
-            alternativeActions.actionHeuristic = heurAct ? heurAct.name : 'no_action'
-        }
+        // PASSIVE RUNS
+        // if (solverType === 'passive') {
+        //     const options = getMOptions(mStates, simState, horizon)
+        //     const mdp = new MarkovDecisionProcess(mStates, Object.values(options), curMState, { gamma: .99, epsilon: 5, n: 100, timeOfES: 5 })
+        //     const mdpAct = mdp.getAction()
+        //     alternativeActions.actionMDP = mdpAct ? mdpAct.name : 'no_action'
+        //
+        //     const heuristicProcess = new HeuristicProcess(mStates, Object.values(options), curMState, solverType)
+        //     const heurAct = heuristicProcess.getAction()
+        //     alternativeActions.actionHeuristic = heurAct ? heurAct.name : 'no_action'
+        // }
 
         if (action && isEmergencyStop(action)) {
             const nullLoARecord = { [LoA.LoA0]: 0, [LoA.LoA1]: 0, [LoA.LoA2]: 0, [LoA.LoA3]: 0 }
@@ -90,15 +98,13 @@ function mainLoop() {
         if (isOption(action)) {
             const stepsForOption = sim.performOption(action)
             i = i + (stepsForOption - 1)
-        } else {
+        } else if (action) {
             sim.performAction(action)
         }
 
         // LOGGING
         simState = sim.getSimState()
 
-        // tslint:disable-next-line:max-line-length
-        // console.log(`${formatNumber(i)} -- ${curMState.h()} -- ${action ? actionToArrow(action.h() as OptionName) : '[]'} -- ${curMState.isSafe() ? 'Y' : 'N'}`)
         if ( i % 1 === 0) {
             console.log(`${formatNumber(i)} / ${formatNumber(nrSteps)} -- ${curMState.h()} -- ${action ? actionToArrow(action.h() as OptionName) : '[]'} -- ${curMState.isSafe() ? 'Y' : 'N'}`)
         }
